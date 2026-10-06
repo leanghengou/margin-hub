@@ -1,0 +1,22 @@
+{
+  "name": "agency-profitability",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Seed data and SQL for the Agency Profitability Dashboard",
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "seed:generate": "tsx seed/generate.ts",
+    "db:load": "tsx --env-file=.env seed/load.ts",
+    "seed": "npm run seed:generate && npm run db:load",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
