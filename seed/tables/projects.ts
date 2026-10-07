@@ -6,6 +6,18 @@ import { CLIENT_COUNT, clientWindow } from "../stories.js";
 // Services: 1 SEO, 2 AEO/GEO, 3 Web Development, 4 CRO, 5 Paid Ads
 const SERVICE_IDS = [1, 2, 3, 4, 5];
 
+// Pricing model follows the service, never random:
+//   SEO, AEO/GEO, Paid Ads -> retainer (ongoing monthly work)
+//   Web Development        -> fixed    (one-off build with a clear deliverable)
+//   CRO                    -> hourly   (test-and-iterate work billed by time)
+const PRICING_BY_SERVICE: Record<number, "retainer" | "fixed" | "hourly"> = {
+  1: "retainer",
+  2: "retainer",
+  3: "fixed",
+  4: "hourly",
+  5: "retainer",
+};
+
 // The money-losing project ids get filled in as we build, then
 // exported so time_entries can pile extra hours onto them.
 export const MONEY_LOSING_PROJECT_IDS: number[] = [];
@@ -31,19 +43,17 @@ export function generateProjects(): void {
     const services = faker.helpers.arrayElements(SERVICE_IDS, count);
 
     for (const serviceId of services) {
-      // CRO (service 4) is fixed-fee with a high budget (star margin).
-      let pricingModel: string;
-      let budget: number;
+      const pricingModel = PRICING_BY_SERVICE[serviceId];
 
+      // Budget ranges stay per service.
+      let budget: number;
       if (serviceId === 4) {
-        pricingModel = "fixed";
+        // CRO: high-value engagements (star margin story).
         budget = faker.number.int({ min: 25000, max: 60000 });
       } else if (serviceId === 3) {
-        // Web Development is a one-time fixed build fee.
-        pricingModel = "fixed";
+        // Web Development: one-time build fee.
         budget = faker.helpers.arrayElement([8000, 10000, 12000, 15000]);
       } else {
-        pricingModel = faker.helpers.arrayElement(["retainer", "fixed", "hourly"]);
         budget = faker.number.int({ min: 5000, max: 30000 });
       }
 
@@ -62,21 +72,21 @@ export function generateProjects(): void {
 
       // Track candidates for money-losing.
       if (serviceId === 3) webProjects.push(id);
-      else if (pricingModel === "retainer" || serviceId === 5) otherProjects.push(id);
+      else if (pricingModel === "retainer") otherProjects.push(id);
 
       id++;
     }
   }
 
-  // Pick the losers: 4 website builds + 4 others (retainers/ads).
+  // Pick the losers: 4 website builds + 4 retainers.
   const webLosers = faker.helpers.arrayElements(webProjects, 4);
   const otherLosers = faker.helpers.arrayElements(otherProjects, 4);
   MONEY_LOSING_PROJECT_IDS.push(...webLosers, ...otherLosers);
 
-  // The creep story: pick one retainer project as the standout.
-  const retainers = rows.filter((r) => r.pricing_model === "retainer");
-  if (retainers.length > 0) {
-    CREEP_PROJECT.projectId = faker.helpers.arrayElement(retainers).id;
+  // The creep story: one SEO retainer as the standout.
+  const seoRetainers = rows.filter((r) => r.service_id === 1);
+  if (seoRetainers.length > 0) {
+    CREEP_PROJECT.projectId = faker.helpers.arrayElement(seoRetainers).id;
   }
 
   writeCsv(
