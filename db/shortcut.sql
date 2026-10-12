@@ -83,3 +83,129 @@ and work_date >= employee_rates.valid_from and
 ;
 
 ----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select
+entry_view.client,
+entry_view.client_id,
+entry_view.service,
+sum(entry_view.labour_cost) as labour_cost,
+sum(pay.amount),
+to_char(entry_view.work_date, 'YYYY-MM') AS work_month,
+to_char(pay.invoice_date, 'YYYY-MM') AS invoice_month
+
+from v_entry_cost entry_view
+
+join invoices pay on 
+entry_view.service_id = pay.service_id
+and 
+entry_view.client_id = pay.client_id
+and 
+to_char(entry_view.work_date, 'YYYY-MM') = to_char(pay.invoice_date, 'YYYY-MM')
+
+group by entry_view.client_id, entry_view.client, entry_view.service, work_month, invoice_month
+
+order by work_month
+;
+
+
+
+
+
+
+
+
+
+
+
+
+with revenue as (          
+    select
+		service_id,
+        client_id,
+        to_char(invoice_date, 'YYYY-MM') as month,
+        sum(amount) as total_cost
+    from invoices
+    group by client_id, to_char(invoice_date, 'YYYY-MM'), service_id
+	order by client_id, to_char(invoice_date, 'YYYY-MM')
+	)
+
+
+select * from revenue;
+
+
+
+
+
+
+
+
+
+
+---------2nd view---------------------
+
+
+with monthly_revenue as (          
+    select
+		service_id,
+        client_id,
+        to_char(invoice_date, 'YYYY-MM') as month,
+        sum(amount) as total_revenue
+    from invoices
+    group by client_id, to_char(invoice_date, 'YYYY-MM'), service_id
+	order by client_id, to_char(invoice_date, 'YYYY-MM')
+)
+
+
+select
+agency.client,
+agency.client_id,
+agency.service,
+agency.service_id,
+sum(agency.labour_cost) as labour_cost,
+client_revenue.total_revenue as revenue,
+(client_revenue.total_revenue - sum(agency.labour_cost)) as profit,
+to_char(agency.work_date, 'YYYY-MM') AS work_month
+from v_entry_cost agency
+join monthly_revenue client_revenue
+on agency.client_id = client_revenue.client_id
+and agency.service_id = client_revenue.service_id
+and to_char(agency.work_date, 'YYYY-MM') = client_revenue.month
+
+group by agency.client_id, agency.client, agency.service, work_month, revenue, agency.service_id
+order by work_month
+;
+
+
+
+
+
+
+---------3rd view---------------------
+select 
+service_id,
+service,
+work_month,
+sum(labour_cost) as labour_cost,
+ sum(revenue) as revenue,
+ sum(profit) as profit,
+ round(sum(profit) / nullif(sum(revenue), 0), 3) as margin
+
+from V_client_month_pnl
+
+group by work_month,service_id,service
+;
