@@ -209,3 +209,48 @@ from V_client_month_pnl
 
 group by work_month,service_id,service
 ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- team_id, team, month, revenue, hours, effective_hourly_rate.
+
+with team_revenue as (
+    select
+        teams.name,
+        teams.id,
+        to_char(invoice_date, 'YYYY-MM') as month,
+        sum(amount) as total_revenue
+    from invoices
+    join services on services.id = invoices.service_id
+    join teams on teams.id = services.team_id
+    where teams.name not like 'Account Management%'
+    group by to_char(invoice_date, 'YYYY-MM'), teams.id
+    order by to_char(invoice_date, 'YYYY-MM')
+)
+select
+team.id as team_id,
+team.name as team,
+squad.month as month,
+squad.total_revenue,
+sum(entry_cost_data.hour_spent) as hours_spent,
+round(squad.total_revenue / nullif(sum(entry_cost_data.hour_spent), 0), 2) as effective_hourly_rate
+from v_entry_cost entry_cost_data
+join employees team_member on team_member.id = entry_cost_data.employee_id
+join teams team on team.id = team_member.team_id
+join team_revenue squad on to_char(entry_cost_data.work_date, 'YYYY-MM') = squad.month
+and squad.id = team.id
+group by team.id, team.name, squad.total_revenue, squad.month
+order by team.id, squad.month
+;
