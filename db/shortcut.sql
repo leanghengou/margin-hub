@@ -254,3 +254,84 @@ and squad.id = team.id
 group by team.id, team.name, squad.total_revenue, squad.month
 order by team.id, squad.month
 ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------5th view---------------------
+create or replace view v_employee_utilisation as
+select 
+entry_data.employee_id,
+entry_data.employee_name,
+date_trunc('week', entry_data.work_date)::date as week,
+sum(case when entry_data.billable then hour_spent else 0 end) as billable_hours,
+worker.weekly_capacity,
+round((sum(case when entry_data.billable then hour_spent else 0 end) / nullif(worker.weekly_capacity,0)) * 100) as ultilisation
+from v_entry_cost entry_data
+join employees worker on entry_data.employee_id = worker.id
+group by entry_data.employee_id, entry_data.employee_name, week, worker.weekly_capacity
+
+order by entry_data.employee_id, week
+;
+
+
+
+
+---------------------6th view---------------------
+
+with hours_used as (
+select 
+client_id,
+client,
+service_id,
+service,
+sum(hour_spent) as hour_spent,
+date_trunc('month', work_date)::date as month
+from v_entry_cost
+
+group by  service, service_id, month, client, client_id
+order by month)
+
+
+select 
+project_budget.id as budget_id,
+hours_used.client,
+project_budget.client_id,
+hours_used.service,
+project_budget.service_id,
+project_budget.month as budget_month,
+project_budget.budgeted_hour,
+hours_used.hour_spent as hours_spent_by_team,
+round((hours_used.hour_spent / nullif(project_budget.budgeted_hour,0)) * 100) as burn_pct,
+case when round((hours_used.hour_spent / nullif(project_budget.budgeted_hour, 0)) * 100) >= 80 then true else false end as over_budget_flag
+
+from client_budgets project_budget
+join hours_used
+on project_budget.client_id = hours_used.client_id
+and project_budget.service_id = hours_used.service_id
+and project_budget.month = hours_used.month
+order by project_budget.month
+;
+
+
+
+
+
+
+
