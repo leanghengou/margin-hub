@@ -335,3 +335,70 @@ order by project_budget.month
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+---------------Active clients, churned clients, loss money client---------------------------------
+WITH client_financials AS (
+select 
+client_id,
+case when sum(revenue) - sum(labour_cost) < 0 then null else 
+sum(revenue) - sum(labour_cost) end as profit
+
+   
+
+from v_client_month_pnl
+
+group by client_id
+)
+
+select  
+count(case when client_table.end_date is null then 1 end) as active_clients,
+count(case when client_table.end_date is not null then 1 end) as churned_clients,
+count(case when client_profit.profit is null then 1 end) as client_no_profit
+
+
+from clients client_table
+join client_financials client_profit on client_table.id = client_profit.client_id
+
+;
+
+
+
+
+
+
+
+
+
+
+---------------last 3 months profit------------------------------------
+select
+client,
+sum(revenue) as revenue,
+sum(revenue) - sum(labour_cost) as gross_profit,
+round(100.0 * sum(profit) / nullif(sum(revenue), 0),1) as margin_pct,
+date_trunc('month', CURRENT_DATE - INTERVAL '3 months') as three_months_ago,  
+
+sum(profit) filter(
+where to_date(work_month, 'YYYY-MM') >= date_trunc('month', CURRENT_DATE) - INTERVAL '3 months'
+and to_date(work_month, 'YYYY-MM') < date_trunc('month', CURRENT_DATE)
+) as profit_three_month
+
+from v_client_month_pnl
+group by client
+;
+
+
+
+
+
