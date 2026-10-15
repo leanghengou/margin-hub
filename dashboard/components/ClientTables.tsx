@@ -1,56 +1,65 @@
 import { formatMoney } from "@/lib/queries";
 import ClientTrendLine from "./ClientTrendLine";
 import AgencyTrendChart from "./AgencyTrendChart";
+import ServiceBubble from "./ServicesBubbles";
 export const dynamic = 'force-dynamic'
 
-export default async function ClientTables({ BudgetBurn, ClientRowTables, agencyTrend}: any) {
+export default async function ClientTables({ BudgetBurn, ClientRowTables, agencyTrend, serviceMix}: any) {
 
+const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_0_-1px_0_#d1d5db]";
     console.log("ClientRowTable", ClientRowTables)
   return(
 
-<section className="flex flex-row">
+<section className="flex flex-row m-5">
 
-
-
-
-
-<div className="flex-1 overflow-hidden bg-white shadow-md p-2 w-1/2 p-5">
-  <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3 mt-4">
-       Client profitibility - 24 months
+<div className="w-1/2 bg-white border-[#F4F5F5] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.05),inset_0px_0px_0px_1px_rgb(209,213,219)] shadow-sm p-5">
+  <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3">
+    Client profitability · 24 months
   </h5>
-  <table className="w-full table-fixed text-ink text-[0.9rem]">
-    <thead>
-      <tr className="text-left text-[0.7rem] text-gray-500 border-b border-gray-300">
-        <th className="font-normal py-1">Client</th>
-        <th className="font-normal py-1">Revenue</th>
-    
-        <th className="font-normal">Gross profit</th>
-         <th className="font-normal">Margin</th>
-        <th className="font-normal">12-mo trend</th>
-      </tr>
-    </thead>
-    <tbody>
-      {ClientRowTables.map((item:any) => {
-      
-        return (
-          <tr key={`${item.client}-${item.service}`} className="hover:bg-gray-50 cursor-pointer border-b border-gray-300 last:border-b-0">
-            <td className="pr-20 max-w-[160px] py-0.5 font-medium truncate px-1">{item.client}</td>
-            <td className="py-0.5 max-w-[50px] font-medium truncate">{formatMoney(item.revenue)}</td>
-            <td className={`py-0.5 max-w-[50px] font-medium truncate ${item.gross_profit < 0 ? "text-red-600":""}`}>{formatMoney(item.gross_profit)}</td>
-            <td className={`py-0.5 max-w-[50px] font-medium truncate ${item.gross_profit < 0 ? "text-red-600":""}`}>{item.margin_pct}%</td>
-            <td className={`py-0.5 w-1/2 pr-10 font-medium truncate ${item.gross_profit < 0 ? "text-red-600":""}`}><ClientTrendLine values={item.monthly_profit} labels={item.monthly_labels}/></td>
-           
+
+  <div className="max-h-[620px] overflow-y-auto">
+    <table className="w-full table-fixed text-ink text-[0.9rem]">
+      <thead>
+        <tr className="text-[0.7rem] text-gray-500">
+          <th className={th}>Client</th>
+          <th className={th}>Revenue</th>
+          <th className={th}>Gross profit</th>
+          <th className={th}>Margin</th>
+          <th className={th}>12-mo trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ClientRowTables.map((item: any) => (
+          <tr
+            key={item.client_id}
+            className="hover:bg-gray-50 cursor-pointer border-b border-gray-300 last:border-b-0 p-5"
+          >
+            <td className="max-w-[160px] font-medium truncate px-1">{item.client}</td>
+            <td className=" max-w-[50px] font-medium truncate">{formatMoney(item.revenue)}</td>
+            <td className={`max-w-[50px] font-medium truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
+              {formatMoney(item.gross_profit)}
+            </td>
+            <td className={`max-w-[50px] font-medium truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
+              {item.margin_pct}%
+            </td>
+            <td className="w-1/2 pr-10">
+              <ClientTrendLine values={item.monthly_profit} labels={item.monthly_labels} />
+            </td>
           </tr>
-        );
-      })}
-    </tbody>
-  </table>
+        ))}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 
-<div className="flex-1 overflow-hidden bg-white shadow-md p-2 w-1/2 p-5">
+<div className="flex-1 overflow-hidden w-1/2">
+<div className="flex-1 flex">
 <AgencyTrendChart rows={agencyTrend}/>
-  <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3 mt-4">
+<ServiceBubble rows={serviceMix}/>
+</div>
+<div className="p-5 bg-white  border-[#F4F5F5] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.05),inset_0px_0px_0px_1px_rgb(209,213,219)] shadow-sm mt-6 ml-6">
+  <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3">
         Budget burn · {new Date().toLocaleString("en-US", { month: "short" })} · {BudgetBurn.length} clients
   </h5>
   <table className="w-full table-fixed text-ink text-[0.9rem]">
@@ -66,16 +75,16 @@ export default async function ClientTables({ BudgetBurn, ClientRowTables, agency
       {BudgetBurn.map((item:any) => {
         const left = item.budgeted_hour - item.hours_spent_by_team;
         const burn = (item.hours_spent_by_team / item.budgeted_hour) * 100;
-        const color = burn > 100 ? "bg-red-500" : burn >= 80 ? "bg-amber-500" : "bg-lime-500";
+        const color = burn > 100 ? "bg-red-500" : burn >= 50 ? "bg-amber-500" : "bg-lime-500";
         return (
           <tr key={`${item.client}-${item.service}`} className="border-b border-gray-300 last:border-b-0">
-            <td className="py-0.5 font-medium truncate">{item.client}</td>
+            <td className="font-medium truncate py-1">{item.client}</td>
             <td>{item.service}</td>
             <td className={`text-right pr-3 tabular-nums ${left < 0 ? "text-red-600" : ""}`}>{left} h</td>
             <td>
               <div className="relative h-2 bg-gray-100">
                 <div className={`h-full ${color}`} style={{ width: `${Math.min(burn, 100)}%` }} />
-                <div className="absolute -inset-y-1 left-[80%] w-px bg-gray-400" />
+                <div className="absolute -inset-y-1 left-[50%] w-px bg-gray-400" />
               </div>
             </td>
           </tr>
@@ -83,7 +92,7 @@ export default async function ClientTables({ BudgetBurn, ClientRowTables, agency
       })}
     </tbody>
   </table>
-
+</div>
 
 
 

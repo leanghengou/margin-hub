@@ -120,3 +120,24 @@ GROUP BY work_month
 ORDER BY work_month;
   `;
 }
+
+
+
+
+
+export async function getServiceMix() {
+return sql`
+SELECT
+service,
+SUM(revenue) AS revenue,
+SUM(labour_cost) AS cost,
+SUM(profit) AS profit,
+to_char(current_date, 'YYYY') AS selected_year,
+to_char(current_date, 'FMMonth') AS selected_month
+FROM v_service_month_pnl
+WHERE work_month >= to_char(date_trunc('year', current_date), 'YYYY-MM')
+AND work_month <= to_char(current_date, 'YYYY-MM')
+GROUP BY service
+ORDER BY revenue DESC;
+`;
+}
