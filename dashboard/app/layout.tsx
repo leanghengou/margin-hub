@@ -23,9 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-     className={`${outfit.variable} ${onest.variable}`}
+     className={`${geistSans.variable} ${geistSans.variable}`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50 mx-20">{children}</body>
+      <body className="min-h-full flex flex-col bg-gray-50 mx-37">{children}</body>
     </html>
   );
 }

@@ -37,7 +37,7 @@ title: (items) => items[0].label,
 },
 scales: { x: { display: false }, y: { display: false } },
 }}
-height={28}
+height={15}
 />
 );
 }

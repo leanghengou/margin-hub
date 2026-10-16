@@ -14,15 +14,21 @@ export const formatMoney = (n: number | string | null) =>
   n == null ? "—" : compactUsd.format(Number(n));
 
 /* ---------- All queries ---------- */
-export async function getKpis() {
+export async function getKpis(months:number) {
   const [row] = await sql`
-    WITH totals AS (
+    WITH bounds AS (
       SELECT
-        SUM(revenue) FILTER (WHERE work_month = to_char(current_date - INTERVAL '1 month', 'YYYY-MM')) AS month_revenue,
-        SUM(profit)  FILTER (WHERE work_month = to_char(current_date - INTERVAL '1 month', 'YYYY-MM')) AS month_profit,
+        to_char(current_date - INTERVAL '1 month', 'YYYY-MM') AS last_month,
+        to_char(current_date - make_interval(months => ${months}), 'YYYY-MM') AS first_month
+    ),
+    totals AS (
+      SELECT
+        SUM(revenue) FILTER (WHERE work_month = b.last_month) AS month_revenue,
+        SUM(profit)  FILTER (WHERE work_month = b.last_month) AS month_profit,
         SUM(revenue) AS total_revenue,
         SUM(profit)  AS total_profit
-      FROM v_service_month_pnl
+      FROM v_service_month_pnl, bounds b
+      WHERE work_month BETWEEN b.first_month AND b.last_month
     )
     SELECT
       to_char(current_date - INTERVAL '1 month', 'Mon') AS month_label,
@@ -68,16 +74,15 @@ export async function getBudgetBurn() {
 
 
 
-export async function getClientTables() {
+export async function getClientTables(months:number) {
   return sql`
-WITH graph_client_table AS (
-select
-client_id,
-array_agg(profit ORDER BY work_month) AS monthly_profit,
-array_agg(to_char(to_date(work_month, 'YYYY-MM'), 'FMMonth YYYY') ORDER BY work_month) AS monthly_labels
-from v_client_month_pnl
-group by client_id
-),
+
+WITH selected_month AS (
+      SELECT
+        to_char(current_date - INTERVAL '1 month', 'YYYY-MM') AS last_month,
+        to_char(current_date - make_interval(months => ${months}), 'YYYY-MM') AS first_month
+    ),
+    
 
 totals_table AS (
 select
@@ -85,22 +90,17 @@ table_client.client,
 table_client.client_id,
 sum(table_client.revenue) as revenue,
 sum(table_client.revenue) - sum(table_client.labour_cost) as gross_profit,
-round(100.0 * sum(table_client.profit) / nullif(sum(table_client.revenue), 0),1) as margin_pct,
-date_trunc('month', CURRENT_DATE - INTERVAL '3 months') as three_months_ago,
-sum(profit) filter(
-where to_date(table_client.work_month, 'YYYY-MM') >= date_trunc('month', CURRENT_DATE) - INTERVAL '3 months'
-and to_date(table_client.work_month, 'YYYY-MM') < date_trunc('month', CURRENT_DATE)
-) as profit_three_month
-from v_client_month_pnl table_client
+round(100.0 * sum(table_client.profit) / nullif(sum(table_client.revenue), 0),1) as margin_pct
+from v_client_month_pnl table_client, selected_month bounds
+WHERE work_month BETWEEN bounds.first_month AND bounds.last_month
 group by table_client.client, table_client.client_id
+
+
 )
 
 select
-totals_table.*,
-graph_table.monthly_profit,
-graph_table.monthly_labels
+totals_table.*
 from totals_table
-join graph_client_table graph_table on totals_table.client_id = graph_table.client_id
 order by gross_profit desc
 ;
   `;

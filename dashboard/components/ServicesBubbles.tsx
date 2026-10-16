@@ -3,8 +3,6 @@ const money = new Intl.NumberFormat("en-US", {
   style: "currency", currency: "USD", notation: "compact",
 });
 
-// Drop icon files in /public/icons and fill these in, e.g. "/icons/seo.png".
-// Leave a value blank to show the first letter instead.
 const icons: Record<string, string> = {
   SEO: "",
   "Paid Ads": "",

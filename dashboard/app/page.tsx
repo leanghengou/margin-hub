@@ -4,12 +4,14 @@ import ClientTables from "@/components/ClientTables";
 export const dynamic = 'force-dynamic'
 
 
-export default async function Home() {
- const [kpis, clientStatus, BudgetBurn, ClientRowTables, agencyTrend , serviceMix] = await Promise.all([getKpis(), getClientStatus(), getBudgetBurn(), getClientTables(), getAgencyTrend(), getServiceMix()]);
+export default async function Home({ searchParams }: any) {
+  const { months =3 } = await searchParams;
+ const [kpis, clientStatus, BudgetBurn, ClientRowTables, agencyTrend , serviceMix] = await Promise.all([getKpis(Number(months)), getClientStatus(), getBudgetBurn(), getClientTables(Number(months)), getAgencyTrend(), getServiceMix()]);
+
   return(
 <div>
-  <KpiCards kpis={kpis} clientStatus={clientStatus}  />
-  <ClientTables BudgetBurn={BudgetBurn} ClientRowTables={ClientRowTables} agencyTrend={agencyTrend} serviceMix={serviceMix}  />
+  <KpiCards months={Number(months)}  kpis={kpis} clientStatus={clientStatus}  />
+  <ClientTables months={Number(months)} BudgetBurn={BudgetBurn} ClientRowTables={ClientRowTables} agencyTrend={agencyTrend} serviceMix={serviceMix}  />
 </div>
   )
 }
