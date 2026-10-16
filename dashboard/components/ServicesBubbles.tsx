@@ -21,7 +21,7 @@ export default function ServiceRanking({ rows }: { rows: any[] }) {
   if (!rows?.length) return null;
 const total = rows.reduce((sum, r) => sum + Number(r.revenue), 0);
   return (
-    <div className="bg-white w-1/2  border-[#F4F5F5] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.05),inset_0px_0px_0px_1px_rgb(209,213,219)] shadow-sm p-6">
+    <div className="bg-white w-1/2 flex-1 overflow-hidden bg-white p-5 rounded-lg p-6">
       <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3">
         Top services · Jan – {rows[0].selected_month} {rows[0].selected_year}
       </h5>
@@ -52,7 +52,7 @@ const total = rows.reduce((sum, r) => sum + Number(r.revenue), 0);
               {/* name + margin */}
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-ink truncate">{r.service}</div>
-                <div className="text-xs font-semibold text-ink">
+                <div className="text-xs text-ink">
                   {Math.round((revenue / total) * 100)}% of total revenue
                 </div>
               </div>

@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export default function PeriodSelect() {
   const router = useRouter();
-  const months = useSearchParams().get("months") ?? "24";
+  const months = useSearchParams().get("months") ?? "3";
 
   return (
     <select

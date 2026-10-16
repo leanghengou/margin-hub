@@ -13,7 +13,7 @@ const compactUsd = new Intl.NumberFormat("en-US", {
   style: "currency", currency: "USD", notation: "compact",
 });
 
-export default function AgencyTrendChart({ rows }: { rows: any[] }) {
+export default function AgencyTrendChart({ rows, months }: { rows: any[], months:number }) {
   const labels = rows.map((r) =>
     new Date(r.work_month + "-01").toLocaleString("en-US", {
       month: "short", year: "2-digit", timeZone: "UTC",
@@ -21,11 +21,11 @@ export default function AgencyTrendChart({ rows }: { rows: any[] }) {
   );
 
   return (
-    <div className="bg-white w-1/2  border-[#F4F5F5] shadow-[0px_0px_0px_1px_rgba(0,0,0,0.05),inset_0px_0px_0px_1px_rgb(209,213,219)] shadow-sm mx-6 p-6">
+    <div className="bg-white w-1/2 flex-1 overflow-hidden bg-white p-5 rounded-lg mx-6 p-6">
 
       <PeriodSelect/>
       <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-4">
-        Revenue vs profit · 24 months
+        {`Revenue vs profit · ${ months} months`}
       </h5>
       <div className="relative h-72">
         <Line
