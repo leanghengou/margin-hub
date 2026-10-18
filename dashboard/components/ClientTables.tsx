@@ -99,7 +99,7 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
           </td>
           <td className="py-2 pr-5 whitespace-nowrap">{item.service}</td>
           <td className={`py-2 pr-3 text-right tabular-nums whitespace-nowrap ${left < 0 ? "text-red-600" : ""}`}>
-            {left} h
+            {left} hours
           </td>
           <td className="py-2 w-full">
             <div className="relative h-2 bg-gray-100">
