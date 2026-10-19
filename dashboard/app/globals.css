@@ -33,12 +33,30 @@
   --color-warn: #f2a900;      /* ≥80% burn */
   --color-warn-text: #9a6b00; /* amber text, readable on white */
   --color-neutral: #8a958a;   /* overhead / Account Mgmt */
+
+
+
+--color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  /* Brand accent: green palette from the V2 mock */
+  --color-brand-50: #f1f8ea;
+  --color-brand-100: #e3f1d6;
+  --color-brand-300: #a6d46f;
+  --color-brand-500: #6cb33a;
+  --color-brand-600: #55a02e;
+  --color-brand-700: #3f8c22;
+
+  
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
---background: #f1f1f1;
-    --foreground: #f1f1f1;;
+--background: white;
+/* --foreground: #f1f1f1; */
+
+--foreground: #2d2d2d;
   }
 }
 

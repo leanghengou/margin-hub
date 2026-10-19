@@ -201,6 +201,52 @@ order by client_info.work_month
 }
 
 
+export async function getEmployeeUtilisation() {
+  return sql`
+ WITH bounds AS (
+   SELECT MAX(week) AS latest_week
+  FROM v_employee_utilisation
+    )
+
+select  employee_name, 
+employee_id,
+array_agg(utilisation ORDER BY week) AS weeks,
+array_agg(to_char(week, 'Mon') ORDER BY week) AS months
+from 
+v_employee_utilisation employee, bounds work_month
+
+where 
+employee.week < work_month.latest_week
+and employee.week >=  work_month.latest_week - INTERVAL '13 weeks'
+GROUP BY employee_id, employee_name
+ORDER BY employee_name
+;
+  `
+}
+
+export async function getTeamEconomic(customValue:number) {
+
+  return sql`
+  WITH bounds AS (
+  SELECT date_trunc('month', MAX(work_date))::date AS partial_month
+  FROM time_entries
+)
+SELECT
+  t.team_id,
+  t.team,
+  SUM(t.total_revenue) AS revenue,
+  SUM(t.hours_spent)   AS hours,
+  ROUND(SUM(t.total_revenue) / NULLIF(SUM(t.hours_spent), 0)) AS rate
+FROM v_team_performance t, bounds b
+WHERE to_date(left(t.month, 7), 'YYYY-MM') <  b.partial_month
+  AND to_date(left(t.month, 7), 'YYYY-MM') >= b.partial_month - make_interval(months => ${customValue})
+GROUP BY t.team_id, t.team
+ORDER BY rate DESC NULLS LAST;
+  `
+  
+}
+
+
 
 
 
