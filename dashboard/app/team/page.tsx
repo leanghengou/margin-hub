@@ -1,5 +1,5 @@
 
-import { getEmployeeUtilisation, getTeamEconomic } from "../../lib/queries";
+import { getEmployeeUtilisation, getTeamEconomic, getWorkerUtilisation } from "../../lib/queries";
 import TeamEconomics from "@/components/TeamEconomic";
 export const dynamic = 'force-dynamic'
 
@@ -7,11 +7,12 @@ export const dynamic = 'force-dynamic'
 export default async function Team({ searchParams }: { searchParams: any }) {
 const { months } = await searchParams;
 const period = Number(months) || 3;
-const [employeeUtilisation, teamEconomic] = await Promise.all([getEmployeeUtilisation(), getTeamEconomic( Number(period))]);
+const [employeeUtilisation, teamEconomic,workerUtilisation] = await Promise.all([getEmployeeUtilisation(), getTeamEconomic( Number(period)), getWorkerUtilisation()]);
   console.log("EmployeeUtilisation", teamEconomic)
   return(
     <div>
-    <div className="w-fit m-5 bg-white border border-slate-200 rounded-xl p-5">
+    <div className="flex">
+    <div className="w-fit m-1 bg-white border border-slate-200 rounded-xl p-5">
      <div className="flex items-center justify-between gap-6 mb-3">
   <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
     Utilisation · billable h ÷ 40 h · {employeeUtilisation.length} staff × {employeeUtilisation[0].weeks.length} wks
@@ -79,8 +80,45 @@ const [employeeUtilisation, teamEconomic] = await Promise.all([getEmployeeUtilis
 </ul>
 
 
+
+</div>
+<div className="w-fit m-1 bg-white border border-slate-200 rounded-xl p-5"> 
+
+  <h5 className="text-[0.7rem] font-medium uppercase tracking-wide mb-3">
+    Over capacity · last 30 days
+  </h5>
+
+  <div className="flex justify-between border-b border-slate-300 pb-2 text-xs text-slate-500">
+    <span>Name</span>
+    <span>Util.</span>
+  </div>
+
+  <ul className="max-h-[380px] overflow-y-auto pr-5">
+    {workerUtilisation
+      .filter(item => Number(item.worker_utilisation))
+      .map(item => {
+        return (
+          <li key={item.employee_id} className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+            <div>
+              <h3 className="w-[200px] truncate text-[16px] font-medium text-slate-900">{item.employee_name}</h3>
+              <p className="text-xs text-slate-500">
+                {item.name} · {Number(item.billable_hours).toLocaleString()} h
+              </p>
+            </div>
+            <span className={`text-lg font-semibold ${item.worker_utilisation > 100 ? "text-red-500" : item.worker_utilisation < 60 ? "text-slate-400" : "text-slate-900"} tabular-nums`}>
+              {item.worker_utilisation}%
+            </span>
+          </li>
+        )
+      })}
+  </ul>
+
+
+
+</div>
 </div>
 
+{/* ------------------------------------------- */}
 <TeamEconomics months={months} teams={teamEconomic}/>
 
 </div>

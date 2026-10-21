@@ -247,6 +247,32 @@ ORDER BY rate DESC NULLS LAST;
 }
 
 
+export async function getWorkerUtilisation(){
+  return sql`
+WITH bounds AS (
+  SELECT date_trunc('week', MAX(work_date))::date AS partial_week
+  FROM time_entries
+)
+SELECT
+  worker_data.employee_id,
+  worker_data.employee_name,
+  teams.name,
+  SUM(worker_data.weekly_capacity) AS capacity_hours,
+  SUM(worker_data.billable_hours)  AS billable_hours,
+  round(avg(worker_data.utilisation)) as worker_utilisation
+FROM v_employee_utilisation worker_data
+JOIN employees worker ON worker_data.employee_id = worker.id
+JOIN teams ON teams.id = worker.team_id
+CROSS JOIN bounds b
+WHERE worker_data.week <  b.partial_week
+  AND worker_data.week >= b.partial_week - INTERVAL '30 days'
+GROUP BY worker_data.employee_id, worker_data.employee_name, teams.name
+ORDER BY worker_utilisation DESC
+;
+  `
+}
+
+
 
 
 

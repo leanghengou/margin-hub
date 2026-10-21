@@ -402,3 +402,25 @@ group by client
 
 
 
+--------------------------------------------------
+
+ WITH bounds AS (
+      SELECT
+        current_date - INTERVAL '0 month' AS current_month,
+        current_date - make_interval(months => 3) AS last_month,
+    )
+
+select  employee_name, 
+employee_id,
+employee.week, 
+employee.billable_hours, 
+employee.weekly_capacity, 
+employee.utilisation,
+work_month.week_do
+from 
+v_employee_utilisation employee, bounds work_month
+where employee.week BETWEEN work_month.last_month AND work_month.current_month
+
+ORDER BY employee_name, week
+;
+
