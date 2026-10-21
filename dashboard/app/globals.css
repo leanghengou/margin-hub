@@ -30,7 +30,7 @@
 
   /* Status */
   --color-loss: #e53935;      /* losing money, over budget */
-  --color-warn: #f2a900;      /* ≥80% burn */
+  --color-warn:#ffd350;      /* ≥80% burn */
   --color-warn-text: #9a6b00; /* amber text, readable on white */
   --color-neutral: #8a958a;   /* overhead / Account Mgmt */
 
@@ -47,6 +47,7 @@
   --color-brand-500: #6cb33a;
   --color-brand-600: #55a02e;
   --color-brand-700: #3f8c22;
+  --color-yellow-attention-100: #ffd350;
 
   
 }

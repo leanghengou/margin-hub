@@ -204,8 +204,7 @@ order by client_info.work_month
 export async function getEmployeeUtilisation() {
   return sql`
  WITH bounds AS (
-   SELECT MAX(week) AS latest_week
-  FROM v_employee_utilisation
+   SELECT date_trunc('week', current_date)::date AS latest_week
     )
 
 select  employee_name, 
@@ -217,7 +216,7 @@ v_employee_utilisation employee, bounds work_month
 
 where 
 employee.week < work_month.latest_week
-and employee.week >=  work_month.latest_week - INTERVAL '13 weeks'
+and employee.week >= date_trunc('year', work_month.latest_week)
 GROUP BY employee_id, employee_name
 ORDER BY employee_name
 ;
@@ -250,7 +249,7 @@ ORDER BY rate DESC NULLS LAST;
 export async function getWorkerUtilisation(){
   return sql`
 WITH bounds AS (
-  SELECT date_trunc('week', MAX(work_date))::date AS partial_week
+  SELECT current_date::date AS partial_week
   FROM time_entries
 )
 SELECT
