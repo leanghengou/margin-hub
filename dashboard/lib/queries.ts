@@ -249,25 +249,55 @@ ORDER BY rate DESC NULLS LAST;
 export async function getWorkerUtilisation(){
   return sql`
 WITH bounds AS (
-  SELECT current_date::date AS partial_week
-  FROM time_entries
+SELECT MAX(week) AS latest_week -- ONE row: last week in the data
+FROM v_employee_utilisation
 )
 SELECT
-  worker_data.employee_id,
-  worker_data.employee_name,
-  teams.name,
-  SUM(worker_data.weekly_capacity) AS capacity_hours,
-  SUM(worker_data.billable_hours)  AS billable_hours,
-  round(avg(worker_data.utilisation)) as worker_utilisation
-FROM v_employee_utilisation worker_data
-JOIN employees worker ON worker_data.employee_id = worker.id
-JOIN teams ON teams.id = worker.team_id
+u.employee_id,
+u.employee_name,
+t.name AS team,
+r.hourly_cost AS current_rate, -- rate valid in the latest week
+round(SUM(u.billable_hours) / COUNT(*), 1) AS hours_per_week,
+round(100 * SUM(u.billable_hours) / NULLIF(SUM(u.weekly_capacity), 0)) AS worker_utilisation
+FROM v_employee_utilisation u
+JOIN employees e ON e.id = u.employee_id
+JOIN teams t ON t.id = e.team_id
 CROSS JOIN bounds b
-WHERE worker_data.week <  b.partial_week
-  AND worker_data.week >= b.partial_week - INTERVAL '30 days'
-GROUP BY worker_data.employee_id, worker_data.employee_name, teams.name
+LEFT JOIN employee_rates r
+ON r.employee_id = u.employee_id
+AND r.valid_from <= b.latest_week
+AND (r.valid_to IS NULL OR r.valid_to >= b.latest_week)
+WHERE u.week > b.latest_week - INTERVAL '4 weeks'
+AND u.week <= b.latest_week
+GROUP BY u.employee_id, u.employee_name, t.name, r.hourly_cost
 ORDER BY worker_utilisation DESC
-;
+  `
+}
+
+
+export async function getTeamLoggedHour(months:number){
+  return sql`
+WITH monthly AS (
+SELECT
+to_date(month, 'YYYY-MM') AS month,
+team,
+hours_spent
+FROM v_team_performance
+),
+bounds AS (
+SELECT MAX(month) AS latest_month FROM monthly
+)
+SELECT
+to_char(m.month, 'Mon ''YY') AS label,
+COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'SEO'), 0) AS seo,
+COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Paid Ads'), 0) AS paid_ads,
+COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Website'), 0) AS website
+FROM monthly m
+CROSS JOIN bounds b
+WHERE m.month < b.latest_month 
+AND m.month >= date_trunc('year', b.latest_month) 
+GROUP BY m.month
+ORDER BY m.month;
   `
 }
 
@@ -276,3 +306,41 @@ ORDER BY worker_utilisation DESC
 
 
 
+export async function getTeamLoggedMargin(months: number) {
+return sql`
+WITH bounds AS (
+SELECT date_trunc('month', MAX(work_date))::date AS latest_month
+FROM v_entry_cost
+),
+cost AS (
+SELECT s.team_id,
+SUM(c.labour_cost) AS labour_cost,
+SUM(c.hour_spent) AS hours
+FROM v_entry_cost c
+JOIN services s ON s.id = c.service_id
+CROSS JOIN bounds b
+WHERE c.work_date >= b.latest_month - make_interval(months => ${months})
+AND c.work_date < b.latest_month
+GROUP BY s.team_id
+),
+revenue AS (
+SELECT s.team_id, SUM(i.amount) AS revenue
+FROM invoices i
+JOIN services s ON s.id = i.service_id
+CROSS JOIN bounds b
+WHERE i.invoice_date >= b.latest_month - make_interval(months => ${months})
+AND i.invoice_date< b.latest_month
+GROUP BY s.team_id
+)
+SELECT
+t.name AS team,
+r.revenue,
+c.labour_cost,
+r.revenue - c.labour_cost AS gross_profit,
+round(100 * (r.revenue - c.labour_cost) / NULLIF(r.revenue, 0), 1) AS margin_pct,
+round((r.revenue - c.labour_cost) / NULLIF(c.hours, 0)) AS profit_per_hour
+FROM teams t
+JOIN cost c ON c.team_id = t.id
+JOIN revenue r ON r.team_id = t.id
+ORDER BY margin_pct DESC;
+`}

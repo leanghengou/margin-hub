@@ -1,24 +1,25 @@
 
-import { getEmployeeUtilisation, getTeamEconomic, getWorkerUtilisation } from "../../lib/queries";
+import { getEmployeeUtilisation, getTeamEconomic, getWorkerUtilisation, getTeamLoggedHour, getTeamLoggedMargin } from "../../lib/queries";
 import TeamEconomics from "@/components/TeamEconomic";
+import TeamHoursChart from "@/components/TeamHoursChart";
+import TeamMargin from "@/components/TeamMargin";
 export const dynamic = 'force-dynamic'
 
 
 export default async function Team({ searchParams }: { searchParams: any }) {
 const { months } = await searchParams;
 const period = Number(months) || 3;
-const [employeeUtilisation, teamEconomic,workerUtilisation] = await Promise.all([getEmployeeUtilisation(), getTeamEconomic( Number(period)), getWorkerUtilisation()]);
+const [employeeUtilisation, teamEconomic,workerUtilisation, teamLoggedHour, teamLoggedMargin] = await Promise.all([getEmployeeUtilisation(), getTeamEconomic( Number(period)), getWorkerUtilisation(), getTeamLoggedHour(period), getTeamLoggedMargin(period)]);
   console.log("EmployeeUtilisation", teamEconomic)
   return(
-    <div className="p-5">
-    <div className="flex">
+    <div className="p-5 flex flex-col gap-3">
+    <div className="flex gap-3">
 
 
 
-<div className="w-fit bg-white border border-slate-200 rounded-xl p-5"> 
-
+<div className="w-[30%] h-full bg-white border border-slate-200 rounded-xl p-5">
   <h5 className="text-[0.7rem] font-medium uppercase tracking-wide mb-3">
-    Over capacity · last 30 days
+    Over capacity · last 4 weeks
   </h5>
 
   <div className="flex justify-between border-b border-slate-300 pb-2 text-xs text-slate-500">
@@ -26,24 +27,34 @@ const [employeeUtilisation, teamEconomic,workerUtilisation] = await Promise.all(
     <span>Util.</span>
   </div>
 
-  <ul className="max-h-[380px] overflow-y-auto pr-5">
-    {workerUtilisation
-      .filter(item => Number(item.worker_utilisation))
-      .map(item => {
-        return (
-          <li key={item.employee_id} className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
-            <div>
-              <h3 className="w-[200px] truncate text-[16px] font-medium text-slate-900">{item.employee_name}</h3>
-              <p className="text-xs text-slate-500">
-                {item.name} · {Number(item.billable_hours).toLocaleString()} h
-              </p>
-            </div>
-            <span className={`text-lg font-semibold ${item.worker_utilisation > 100 ? "text-red-500" : item.worker_utilisation < 60 ? "text-slate-400" : "text-slate-900"} tabular-nums`}>
-              {item.worker_utilisation}%
-            </span>
-          </li>
-        )
-      })}
+  <ul className="max-h-[380px] overflow-y-auto pr-2">
+    {workerUtilisation.map((item) => {
+      const util = Number(item.worker_utilisation);
+      return (
+        <li
+          key={item.employee_id}
+          className="flex items-center justify-between gap-3 py-3 border-b border-slate-100 last:border-0"
+        >
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-medium text-slate-900">
+              {item.employee_name} <span className="text-xs font-medium text-slate-700">
+${Number(item.current_rate)}/h
+</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              {item.team} · {Number(item.hours_per_week)} h/wk
+            </p>
+          </div>
+          <span
+            className={`shrink-0 text-lg font-semibold tabular-nums ${
+              util > 100 ? 'text-red-500' : util < 60 ? 'text-slate-400' : 'text-slate-900'
+            }`}
+          >
+            {util}%
+          </span>
+        </li>
+      );
+    })}
   </ul>
 </div>
 
@@ -125,7 +136,37 @@ const [employeeUtilisation, teamEconomic,workerUtilisation] = await Promise.all(
 
 
 {/* ------------------------------------------- */}
+<div className="flex items-start gap-3">
 <TeamEconomics months={months} teams={teamEconomic}/>
+<TeamHoursChart rows={teamLoggedHour}/>
+<TeamMargin rows={teamLoggedMargin} />
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </div>
   )

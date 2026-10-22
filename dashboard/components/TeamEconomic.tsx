@@ -19,7 +19,7 @@ n.toLocaleString("en-CA", { style: "currency", currency: "CAD", maximumFractionD
 
 
   return (
-    <div className="w-full max-w-xl bg-white border border-slate-200 rounded-xl p-5">
+    <div className="w-[30%] h-full max-w-xl bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-center justify-between mb-3">
       <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
         Team economics · {months} months
