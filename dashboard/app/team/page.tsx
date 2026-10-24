@@ -4,7 +4,7 @@ import TeamEconomics from "@/components/TeamEconomic";
 import TeamHoursChart from "@/components/TeamHoursChart";
 import TeamMargin from "@/components/TeamMargin";
 export const dynamic = 'force-dynamic'
-
+import { getAeoServiceMonthly } from "@/lib/queries";
 
 export default async function Team({ searchParams }: { searchParams: any }) {
 const { months } = await searchParams;

@@ -344,3 +344,21 @@ JOIN cost c ON c.team_id = t.id
 JOIN revenue r ON r.team_id = t.id
 ORDER BY margin_pct DESC;
 `}
+
+
+
+export async function getAeoServiceMonthly() {
+return sql`
+select 
+service,
+sum(labour_cost) as labour_cost,
+sum(revenue) as montly_revenue,
+sum(profit) as monthly_profit,
+sum(ROUND(100 * (revenue - labour_cost) / NULLIF(revenue, 0), 1)) AS margin_pct,
+work_month
+from v_client_month_pnl
+where work_month BETWEEN TO_CHAR(date_trunc('year',current_date), 'YYYY-MM') and TO_CHAR(current_date, 'YYYY-MM')
+group by service, work_month;
+`}
+
+
