@@ -15,7 +15,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 type Row = Record<string, unknown>;
 
-// Fun palette
+
 const GREEN = "#1aaf5d"; // revenue
 const BLUE = "#4f7cff";  // labour cost
 const RED = "#ff5468";   // loss: cost above revenue
@@ -26,8 +26,7 @@ const LEGEND = [
   { label: "Loss", color: RED },
 ];
 
-// Display order. Names must match the `service` column exactly.
-// Any service not listed here goes at the end.
+
 const ORDER = ["SEO", "AEO/GEO", "Paid Ads", "CRO", "Web Development"];
 
 const money = (v: number) =>
