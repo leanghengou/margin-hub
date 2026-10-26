@@ -362,3 +362,65 @@ group by service, work_month;
 `}
 
 
+
+
+export async function getServiceLinePnl() {
+  return sql`
+    WITH bounds AS (
+      -- Last 12 full months, anchored to the data (Oct '26 is partial, so excluded)
+      SELECT
+        date_trunc('month', MAX(work_date)) - INTERVAL '12 months' AS start_date,
+        date_trunc('month', MAX(work_date))                        AS end_date  -- exclusive
+      FROM v_entry_cost
+    ),
+    revenue AS (
+      -- Revenue per service (invoices, via the P&L view)
+      SELECT
+        p.service,
+        SUM(p.revenue) AS revenue
+      FROM v_client_month_pnl p
+      CROSS JOIN bounds b
+      WHERE p.work_month >= to_char(b.start_date, 'YYYY-MM')
+        AND p.work_month <  to_char(b.end_date,   'YYYY-MM')
+      GROUP BY p.service
+    ),
+    work AS (
+      -- Hours AND labour cost from every time entry,
+      -- so months without an invoice still carry their cost
+      SELECT
+        e.service,
+        SUM(e.hour_spent)  AS hours,
+        SUM(e.labour_cost) AS labour_cost
+      FROM v_entry_cost e
+      CROSS JOIN bounds b
+      WHERE e.work_date >= b.start_date
+        AND e.work_date <  b.end_date
+      GROUP BY e.service
+    ),
+    pnl AS (
+      -- FULL JOIN keeps a service even if it has only revenue or only hours
+      SELECT
+        COALESCE(w.service, r.service)                        AS service,
+        COALESCE(r.revenue, 0)                                AS revenue,
+        COALESCE(w.labour_cost, 0)                            AS labour_cost,
+        COALESCE(r.revenue, 0) - COALESCE(w.labour_cost, 0)   AS profit,
+        COALESCE(w.hours, 0)                                  AS hours
+      FROM work w
+      FULL JOIN revenue r ON r.service = w.service
+    )
+    SELECT
+      service,
+      revenue,
+      profit                                                      AS gross_profit,
+      ROUND(100 * profit  / NULLIF(revenue, 0), 1)                AS margin_pct,
+      -- Window function: each service's share of total revenue
+      ROUND(100 * revenue / NULLIF(SUM(revenue) OVER (), 0), 1)   AS revenue_share,
+      ROUND(revenue     / NULLIF(hours, 0))                       AS rate_per_hour,
+      ROUND(labour_cost / NULLIF(hours, 0))                       AS cost_per_hour,
+      ROUND(profit      / NULLIF(hours, 0))                       AS profit_per_hour
+    FROM pnl
+    ORDER BY revenue DESC;
+  `;
+}
+
+

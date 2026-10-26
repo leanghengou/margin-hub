@@ -1,6 +1,6 @@
 // components/AgencyTrendChart.tsx
 "use client";
-
+export const dynamic = 'force-dynamic'
 import { Line } from "react-chartjs-2";
 import {
   Chart, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend,

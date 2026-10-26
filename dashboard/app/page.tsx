@@ -16,7 +16,7 @@ export default async function Home({ searchParams }: any) {
 <div className="flex-1 min-w-0 bg-[#f1f1f1] rounded-tl-md overflow-y-auto">
   <ClientProfilePopup data={clientDetail}  open={Boolean(client)} />
   <KpiCards months={Number(months)}  kpis={kpis} clientStatus={clientStatus}  />
-  <ClientTables months={Number(months)} BudgetBurn={BudgetBurn} ClientRowTables={ClientRowTables} agencyTrend={agencyTrend} serviceMix={serviceMix}  />
+  <ClientTables months={Number(months)} budgetBurn={BudgetBurn} ClientRowTables={ClientRowTables} agencyTrend={agencyTrend} serviceMix={serviceMix}  />
   </div>
 </div>
   )
