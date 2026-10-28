@@ -467,3 +467,32 @@ group by c.name, s.name, inv.invoice_date, inv.is_paid, inv.id
   `
 }
 
+
+export async function getRevenueByTier() {
+  return sql`
+  select 
+c.tier,
+count(distinct vc.client) as clients,
+sum(vc.revenue) as revenue,
+sum(vc.profit) as gross_profit,
+round(100 * sum(vc.profit) / nullif(sum(vc.revenue), 0), 1)::float8 as margin_pct
+from v_client_month_pnl vc
+join clients c on c.id = vc.client_id
+group by c.tier
+;
+  `
+}
+export async function getRevenueIndustry() {
+  return sql`
+select 
+c.industry,
+count(distinct vc.client) as clients,
+sum(vc.revenue) as revenue,
+sum(vc.profit) as gross_profit,
+round(100 * sum(vc.profit) / nullif(sum(vc.revenue), 0), 1)::float8 as margin_pct
+from v_client_month_pnl vc
+join clients c on c.id = vc.client_id
+group by c.industry
+;
+  `
+}
