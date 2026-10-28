@@ -9,6 +9,7 @@ export default async function SideNavigation() {
     <Link className="py-2" href="/">Home</Link>
     <Link className="py-2" href="/team">Team</Link>
      <Link className="py-2" href="/services">Services</Link>
+      <Link className="py-2" href="/clients">Clients</Link>
     </section>
   );
 }

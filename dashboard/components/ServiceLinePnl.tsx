@@ -29,7 +29,7 @@ export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
   }));
 
   return (
-    <section className="w-[50%]  rounded-xl border border-gray-200 bg-white p-5">
+    <section className="w-[45%]  rounded-xl border border-gray-200 bg-white p-5">
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-800">
         Service line P&amp;L · 12 mo
       </h2>

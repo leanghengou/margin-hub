@@ -423,4 +423,47 @@ export async function getServiceLinePnl() {
   `;
 }
 
+export async function getClientListTable (){
+
+  return sql`
+  
+  select 
+client,
+c.tier,
+c.industry,
+case when c.end_date is null then 'Active' else 'Churned' end as status,
+c.start_date as joined,
+case when c.end_date is null then '--' else c.end_date::text end as ended,
+sum(revenue) as lifetime_revenue,
+sum(revenue) -sum(labour_cost)  as lifetime_gp,
+ROUND(100 * (SUM(revenue) - SUM(labour_cost)) / NULLIF(SUM(revenue), 0), 1) AS margin_pct
+
+from v_client_month_pnl client_info
+join clients c on c.id = client_info.client_id
+
+group by client, c.id
+;
+  `
+}
+
+
+export async function getInvoiceTable(){
+  return sql`
+  select
+inv.id,
+c.name as client,
+s.name as service,
+to_char(inv.invoice_date, 'Mon DD, YYYY') as invoice_date,
+sum(amount) as amount,
+inv.is_paid,
+current_date - inv.invoice_date as days_since_invoice
+from 
+invoices inv
+join clients c on c.id = inv.client_id
+join services s on s.id = inv.service_id
+where is_paid = false and invoice_date < current_date - interval '20days'
+group by c.name, s.name, inv.invoice_date, inv.is_paid, inv.id
+;
+  `
+}
 

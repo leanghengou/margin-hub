@@ -1,4 +1,4 @@
-// components/ServiceRanking.tsx
+'use client';
 const money = new Intl.NumberFormat("en-US", {
   style: "currency", currency: "USD", notation: "compact",
 });
