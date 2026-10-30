@@ -10,7 +10,7 @@ export default async function Team({ searchParams }: { searchParams: any }) {
 const { months } = await searchParams;
 const period = Number(months) || 3;
 const [employeeUtilisation, teamEconomic,workerUtilisation, teamLoggedHour, teamLoggedMargin] = await Promise.all([getEmployeeUtilisation(), getTeamEconomic( Number(period)), getWorkerUtilisation(), getTeamLoggedHour(period), getTeamLoggedMargin(period)]);
-  console.log("EmployeeUtilisation", teamEconomic)
+
   return(
     <div className="p-5 flex flex-col gap-3">
     <div className="flex gap-3">

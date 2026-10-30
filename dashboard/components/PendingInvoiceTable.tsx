@@ -2,7 +2,6 @@
 
 export default function PendingInvoiceTable({ rows }: { rows: any[] }) {
 
-    console.log("pending invoice", rows)
   return (
     <div className="bg-white w-1/2 flex-1 overflow-hidden bg-white p-5 rounded-lg p-6">
           <table className="w-full text-sm">
