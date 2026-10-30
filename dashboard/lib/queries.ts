@@ -164,39 +164,102 @@ ORDER BY revenue DESC;
 
 export async function getClientDetail(client : number) {
   return sql`
-  SELECT
-  client_info.client,
-  clients.tier,
-  clients.email,
-  clients.location,
-  to_char(clients.start_date, 'Mon YYYY') AS joined,
-  COALESCE(to_char(clients.end_date, 'Mon YYYY'), 'Active') AS ended,
-  client_info.work_month,
-  client_info.service,
-  client_info.revenue,
-  client_info.labour_cost,
-  client_info.profit,
-  ROUND(100.0 * client_info.profit / NULLIF(client_info.revenue, 0), 1) AS margin_pct,
-  invoices.id AS invoice_id,
-  invoices.invoice_date,
-  invoices.amount AS invoiced,
-  invoices.is_paid,
-  invoices.paid_date,
-  cb.budgeted_hour,
-  cb.monthly_fee
+   WITH months AS (
+      -- Every month from the client's start to today (or their end date)...
+      SELECT to_char(m, 'YYYY-MM') AS work_month
+      FROM clients c
+      CROSS JOIN generate_series(
+        date_trunc('month', c.start_date),
+        date_trunc('month', COALESCE(c.end_date, current_date)),
+        INTERVAL '1 month'
+      ) AS m
+      WHERE c.id = ${client}
 
-from v_client_month_pnl client_info 
-left join invoices on invoices.client_id = client_info.client_id
-and invoices.service_id = client_info.service_id
-and to_char(invoices.invoice_date, 'YYYY-MM') = client_info.work_month
-left join clients on client_info.client_id = clients.id
-left join client_budgets cb
-on to_char(cb.month, 'YYYY-MM') = client_info.work_month
-and cb.service_id = client_info.service_id
-and cb.client_id = client_info.client_id
-where client_info.client_id = ${client}
-order by client_info.work_month
-;
+      UNION
+
+      -- ...plus any month with an invoice (e.g. a final bill after churn), never in the future
+      SELECT to_char(invoice_date, 'YYYY-MM')
+      FROM invoices
+      WHERE client_id = ${client}
+        AND invoice_date <= current_date
+    ),
+
+    monthly_invoices AS (
+      -- Revenue: one row per service per month, straight from invoices
+      SELECT
+        service_id,
+        to_char(invoice_date, 'YYYY-MM') AS work_month,
+        MIN(id)           AS invoice_id,
+        MIN(invoice_date) AS invoice_date,
+        SUM(amount)       AS invoiced,
+        BOOL_AND(is_paid) AS is_paid,
+        MAX(paid_date)    AS paid_date
+      FROM invoices
+      WHERE client_id = ${client}
+        AND invoice_date <= current_date
+      GROUP BY service_id, to_char(invoice_date, 'YYYY-MM')
+    ),
+
+    monthly_cost AS (
+      -- Cost: logged hours priced at the rate valid on each work date
+      SELECT
+        service_id,
+        to_char(work_date, 'YYYY-MM') AS work_month,
+        SUM(labour_cost) AS labour_cost
+      FROM v_entry_cost
+      WHERE client_id = ${client}
+      GROUP BY service_id, to_char(work_date, 'YYYY-MM')
+    ),
+
+    services_used AS (
+      SELECT service_id FROM monthly_invoices
+      UNION
+      SELECT service_id FROM monthly_cost
+    )
+
+    SELECT
+      c.name AS client,
+      c.tier,
+      c.email,
+      c.location,
+      to_char(c.start_date, 'Mon YYYY') AS joined,
+      COALESCE(to_char(c.end_date, 'Mon YYYY'), 'Active') AS ended,
+      m.work_month,
+      s.name AS service,
+      COALESCE(i.invoiced, 0)::float8     AS revenue,
+      COALESCE(mc.labour_cost, 0)::float8 AS labour_cost,
+      (COALESCE(i.invoiced, 0) - COALESCE(mc.labour_cost, 0))::float8 AS profit,
+      ROUND(100.0 * (COALESCE(i.invoiced, 0) - COALESCE(mc.labour_cost, 0))
+            / NULLIF(i.invoiced, 0), 1)::float8 AS margin_pct,
+      i.invoice_id,
+      i.invoice_date,
+      i.invoiced,
+      i.is_paid,
+      i.paid_date,
+      cb.budgeted_hour,
+      cb.monthly_fee
+
+    FROM months m
+    CROSS JOIN services_used su
+    JOIN services s ON s.id = su.service_id
+    JOIN clients c  ON c.id = ${client}
+    LEFT JOIN monthly_invoices i
+      ON i.service_id = su.service_id
+     AND i.work_month = m.work_month
+    LEFT JOIN monthly_cost mc
+      ON mc.service_id = su.service_id
+     AND mc.work_month = m.work_month
+    LEFT JOIN client_budgets cb
+      ON cb.client_id  = ${client}
+     AND cb.service_id = su.service_id
+     AND to_char(cb.month, 'YYYY-MM') = m.work_month
+
+    -- Drop empty combinations, e.g. a one-off service in months it wasn't sold
+    WHERE i.invoice_id IS NOT NULL
+       OR mc.labour_cost IS NOT NULL
+       OR cb.client_id IS NOT NULL
+
+    ORDER BY m.work_month, s.name;
   `
 }
 

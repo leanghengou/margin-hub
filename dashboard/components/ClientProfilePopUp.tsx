@@ -14,7 +14,7 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
 
   const label = "text-[0.65rem] text-gray-500";
   const cell = "py-2 pr-4";
-console.log( info)
+
   return (
     <AnimatePresence>
       {open && (
@@ -78,18 +78,20 @@ console.log( info)
                       <td className={cell}>{r.service}</td>
                       <td className={`${cell} text-right`}>{money(r.revenue)}</td>
                       <td className={`${cell} text-right ${Number(r.margin_pct) < 0 ? "text-red-600" : ""}`}>
-                        {r.margin_pct}%
+                        {r.margin_pct == null ? "—" : `${r.margin_pct}%`}
                       </td>
                       <td className="py-2 text-right">
-                        {r.is_paid != null && (
-                          <span
-                            className={`rounded-md px-2 py-0.5 text-[0.7rem] font-medium ${
-                              r.is_paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {r.is_paid ? "Paid" : "Unpaid"}
-                          </span>
-                        )}
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-[0.7rem] font-medium ${
+                            r.is_paid == null
+                              ? "bg-gray-100 text-gray-500"
+                              : r.is_paid
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {r.is_paid == null ? "No invoice" : r.is_paid ? "Paid" : "Unpaid"}
+                        </span>
                       </td>
                     </tr>
                   ))}
