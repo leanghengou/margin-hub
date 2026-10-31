@@ -512,7 +512,7 @@ group by client, c.id
 
 export async function getInvoiceTable(){
   return sql`
-  select
+   select
 inv.id,
 c.name as client,
 s.name as service,
@@ -524,7 +524,7 @@ from
 invoices inv
 join clients c on c.id = inv.client_id
 join services s on s.id = inv.service_id
-where is_paid = false and invoice_date < current_date - interval '20days'
+where is_paid = false and invoice_date < current_date
 group by c.name, s.name, inv.invoice_date, inv.is_paid, inv.id
 ;
   `

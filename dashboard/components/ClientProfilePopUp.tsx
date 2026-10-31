@@ -59,7 +59,7 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
               </div>
             </div>
 
-            {/* Monthly history */}
+          
             <div className="flex-1 overflow-y-auto p-6">
               <table className="w-full text-[0.8rem] text-ink">
                 <thead>
