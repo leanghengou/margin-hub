@@ -16,9 +16,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 type Row = Record<string, unknown>;
 
 
-const GREEN = "#1aaf5d"; // revenue
-const BLUE = "#4f7cff";  // labour cost
-const RED = "#ff5468";   // loss: cost above revenue
+const GREEN = "#1aaf5d"; 
+const BLUE = "#4f7cff";  
+const RED = "#ff5468";   
 
 const LEGEND = [
   { label: "Revenue", color: GREEN },
@@ -32,7 +32,7 @@ const ORDER = ["SEO", "AEO/GEO", "Paid Ads", "CRO", "Web Development"];
 const money = (v: number) =>
   `${v < 0 ? "-" : ""}$${Math.abs(Math.round(v)).toLocaleString()}`;
 
-// "2026-08" -> "Aug '26"
+
 const monthLabel = (ym: string) => {
   const [y, m] = ym.split("-").map(Number);
   const mon = new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", {
@@ -42,9 +42,9 @@ const monthLabel = (ym: string) => {
   return `${mon} '${String(y).slice(2)}`;
 };
 
-// ---------- Wrapper: one chart per service, all in one row ----------
+
 export default function ServiceMonthlyCharts({ rows }: { rows: Row[] }) {
-  // Group the flat query result by service
+
   const byService = new Map<string, Row[]>();
   for (const r of rows) {
     const key = String(r.service);
