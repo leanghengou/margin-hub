@@ -2,6 +2,7 @@ import { getKpis, getClientStatus, getBudgetBurn, getClientTables ,getAgencyTren
 import KpiCards from "@/components/KpiCards";
 import ClientTables from "@/components/ClientTables";
 import ClientProfilePopup from "@/components/ClientProfilePopUp";
+import PeriodSelect from "@/components/PeriodSelect";
 export const dynamic = 'force-dynamic'
 
 
@@ -11,8 +12,9 @@ export default async function Home({ searchParams }: any) {
 
   return(
 <div className="flex h-screen bg-[#3f3f3f]">
-  
+
 <div className="flex-1 min-w-0 bg-[#f1f1f1] rounded-tl-md overflow-y-auto">
+  <PeriodSelect/>
   <ClientProfilePopup data={clientDetail}  open={Boolean(client)} />
   <KpiCards months={Number(months)}  kpis={kpis} clientStatus={clientStatus}  />
   <ClientTables months={Number(months)} budgetBurn={BudgetBurn} ClientRowTables={ClientRowTables} agencyTrend={agencyTrend} serviceMix={serviceMix}  />

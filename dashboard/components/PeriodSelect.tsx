@@ -1,20 +1,34 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const options = [
+  { value: "3", label: "3 months" },
+  { value: "6", label: "6 months" },
+  { value: "12", label: "12 months" },
+  { value: "24", label: "All time" },
+];
+
 export default function PeriodSelect() {
   const router = useRouter();
   const months = useSearchParams().get("months") ?? "3";
 
   return (
-    <select
-  value={months}
-  onChange={(e) => router.push(`?months=${e.target.value}`)}
-  className="text-ink rounded-md border font-medium border-gray-200 bg-white px-3 py-1.5 text-sm"
->
-  <option value="3">Last 3 months</option>
-  <option value="6">Last 6 months</option>
-  <option value="12">Last 12 months</option>
-  <option value="24">All time</option>
-</select>
+    <div className="inline-flex rounded-md border border-line bg-surface p-0.5">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-pressed={months === option.value}
+          onClick={() => router.push(`?months=${option.value}`)}
+          className={`cursor-pointer rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+            months === option.value
+              ? "bg-leaf text-white"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }
