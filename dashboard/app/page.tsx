@@ -11,9 +11,9 @@ export default async function Home({ searchParams }: any) {
  const [kpis, clientStatus, BudgetBurn, ClientRowTables, agencyTrend, serviceMix, clientDetail] = await Promise.all([getKpis(Number(months)), getClientStatus(), getBudgetBurn(), getClientTables(Number(months)), getAgencyTrend(Number(months)), getServiceMix(), client ? getClientDetail(Number(client)) : null]);
 
   return(
-<div className="flex h-screen bg-[#3f3f3f]">
+<div className="flex h-full bg-[#3f3f3f]">
 
-<div className="flex-1 min-w-0 bg-[#f1f1f1] rounded-tl-md overflow-y-auto">
+<div className="flex-1 min-w-0 bg-[#f1f1f1] rounded-tl-md h-full flex flex-col gap-5 p-5 overflow-hidden">
   
   <ClientProfilePopup data={clientDetail}  open={Boolean(client)} />
   <KpiCards months={Number(months)}  kpis={kpis} clientStatus={clientStatus}  />

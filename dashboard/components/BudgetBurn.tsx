@@ -30,14 +30,14 @@ export default function BudgetBurn({ budgetBurn }: { budgetBurn: BurnRow[] }) {
   const month = new Date().toLocaleString("en-US", { month: "short" });
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5">
+    <section className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col min-h-0 flex-1">
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-800">
         Budget burn · {month} · {rows.length} clients
       </h2>
 
-      <div className="overflow-x-auto">
+      <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-sm tabular-nums">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-white">
             <tr className="border-b border-gray-300 text-left text-[11px] uppercase tracking-wide text-gray-500">
               <th className="py-2 pr-4 font-medium">Client</th>
               <th className="py-2 pr-4 font-medium">Service</th>

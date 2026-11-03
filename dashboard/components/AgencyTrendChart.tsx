@@ -21,7 +21,7 @@ export default function AgencyTrendChart({ rows, months }: { rows: any[], months
   );
 
   return (
-    <div className="bg-white w-1/2 flex-1 overflow-hidden bg-white p-5 rounded-lg mx-6 p-6">
+    <div className="bg-white w-1/2 flex-1 overflow-hidden rounded-lg p-6">
 
      
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -30,7 +30,7 @@ export default function AgencyTrendChart({ rows, months }: { rows: any[], months
         </h5>
         <PeriodSelect/>
       </div>
-      <div className="relative h-72">
+      <div className="relative h-56">
         <Line
           data={{
             labels,

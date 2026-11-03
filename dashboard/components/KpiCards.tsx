@@ -10,7 +10,7 @@ export default async function KpiCards({ kpis, clientStatus }: any) {
   const red = "bg-[#FBE0E0] text-[#C0392B]";
 
   return (
-    <section className="flex gap-4 flex-row m-5">
+    <section className="flex gap-4 flex-row shrink-0">
       {/* Revenue */}
       <div className="flex-1 overflow-hidden bg-white p-5 rounded-lg">
         <h5 className="text-ink text-[0.8rem] font-medium">Revenue - {kpis.current_month_label}</h5>

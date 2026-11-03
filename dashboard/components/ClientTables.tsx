@@ -10,9 +10,9 @@ export default async function ClientTables({ budgetBurn, ClientRowTables, agency
 
 const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_0_-1px_0_#d1d5db]";
   return(
-<section className="flex flex-1 flex-row m-5">
+<section className="flex flex-1 flex-row gap-5 min-h-0">
 
-<div className="w-1/2 bg-white rounded-lg p-5 flex flex-col"> {/* CHANGED: added flex flex-col */}
+<div className="w-1/2 bg-white rounded-lg p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
   <div className="flex items-center justify-between gap-2 mb-3">
     <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
       {`Client profitability · ${months} months`}
@@ -21,7 +21,7 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
   </div>
 
   {/* CHANGED: one div became two */}
-  <div className="relative flex-1 min-h-[400px]">
+  <div className="relative flex-1">
     <div className="absolute inset-0 overflow-y-auto">
       <table className="w-full text-ink text-[0.9rem]">
         <thead className="sticky top-0 z-10 bg-white">
@@ -74,12 +74,12 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
 </div>
 
 
-<div className="flex-1 overflow-hidden w-1/2 ">
+<div className="flex-1 w-1/2 min-h-0 flex flex-col gap-5">
 
 <BudgetBurn budgetBurn={budgetBurn} />
 
 
-<div className="flex-1 flex mt-6">
+<div className="flex shrink-0 gap-5">
 <AgencyTrendChart months={months} rows={agencyTrend}/>
 <ServiceBubble rows={serviceMix}/>
 </div>
