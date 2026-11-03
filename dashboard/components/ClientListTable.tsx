@@ -12,7 +12,7 @@ const td = "px-3 py-3";
 
 export default function ClientListTable({ rows }: any) {
   return (
-   <section className="flex max-h-[calc(100vh-4rem)] flex-1 flex-col rounded-lg bg-white p-5">
+   <section className="flex min-w-0 flex-1 flex-col rounded-lg bg-white p-5">
       <div className="flex-1 overflow-auto">
         <table className="w-full whitespace-nowrap text-sm">
           <thead>

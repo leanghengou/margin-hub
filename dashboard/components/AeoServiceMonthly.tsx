@@ -10,6 +10,8 @@ import {
   type ChartOptions,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -79,11 +81,13 @@ export default function ServiceMonthlyCharts({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <Swiper slidesPerView={4.5} spaceBetween={12} className="w-full">
         {services.map((service) => (
-          <ServiceChart key={service} title={service} rows={byService.get(service)!} />
+          <SwiperSlide key={service}>
+            <ServiceChart title={service} rows={byService.get(service)!} />
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </div>
   );
 }
@@ -167,12 +171,16 @@ function ServiceChart({ title, rows }: { title: string; rows: Row[] }) {
       },
       y: {
         min: 0,
+        bounds: "data",
+        grace: "5%",
         grid: { color: "#f1f5f9" },
         ticks: {
           color: "#64748b",
           font: { size: 11 },
           maxTicksLimit: 5,
-          callback: (v) => `$${Math.round(Number(v) / 1000)}k`,
+          // Top tick is the uneven data max (bounds: "data"), so leave it unlabelled
+          callback: (v, index, ticks) =>
+            index === ticks.length - 1 ? "" : `$${Math.round(Number(v) / 1000)}k`,
         },
       },
     },
@@ -186,7 +194,7 @@ function ServiceChart({ title, rows }: { title: string; rows: Row[] }) {
       >
         {title}
       </h2>
-      <div className="relative h-56">
+      <div className="relative h-72">
         <Bar data={data} options={options} />
       </div>
     </section>

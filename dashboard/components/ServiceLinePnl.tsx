@@ -24,7 +24,7 @@ export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
   }));
 
   return (
-    <section className="w-[45%]  rounded-xl border border-gray-200 bg-white p-5">
+    <section className="flex-1 min-w-0 rounded-xl border border-gray-200 bg-white p-5">
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-800">
         Service line P&amp;L · 12 mo
       </h2>
@@ -33,16 +33,16 @@ export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
         <p className="text-sm text-gray-500">No service data in this period.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm tabular-nums">
+          <table className="w-full whitespace-nowrap text-sm tabular-nums">
             <thead>
               <tr className="border-b border-gray-300 text-[11px] uppercase tracking-wide text-gray-500">
-                <th className="py-2 pr-4 text-left font-medium">Service</th>
-                <th className="px-3 py-2 text-right font-medium">Revenue</th>
-                <th className="px-3 py-2 text-right font-medium">Gross profit</th>
-                <th className="px-3 py-2 text-right font-medium">Margin</th>
-                <th className="px-3 py-2 text-right font-medium">Rate</th>
-                <th className="px-3 py-2 text-right font-medium">Cost</th>
-                <th className="py-2 pl-3 text-right font-medium">Profit/h</th>
+                <th className="py-2 pr-2 text-left font-medium">Service</th>
+                <th className="px-2 py-2 text-right font-medium">Revenue</th>
+                <th className="px-2 py-2 text-right font-medium">Gross profit</th>
+                <th className="px-2 py-2 text-right font-medium">Margin</th>
+                <th className="px-2 py-2 text-right font-medium">Rate</th>
+                <th className="px-2 py-2 text-right font-medium">Cost</th>
+                <th className="py-2 pl-2 text-right font-medium">Profit/h</th>
               </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@ export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
                 const negative = s.grossProfit < 0;
                 return (
                   <tr key={s.service} className="border-b border-gray-100 last:border-0">
-                    <td className="py-3 pr-4">
+                    <td className="py-3 pr-2">
                       <span className="flex items-center gap-2 font-semibold text-gray-900">
                         <span
                           className="size-2.5 shrink-0 rounded-full"
@@ -59,16 +59,16 @@ export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
                         {s.service}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-right text-gray-900">{compact(s.revenue)}</td>
-                    <td className={`px-3 py-3 text-right ${negative ? "text-red-600" : "text-gray-900"}`}>
+                    <td className="px-2 py-3 text-right text-gray-900">{compact(s.revenue)}</td>
+                    <td className={`px-2 py-3 text-right ${negative ? "text-red-600" : "text-gray-900"}`}>
                       {compact(s.grossProfit)}
                     </td>
-                    <td className={`px-3 py-3 text-right font-semibold ${negative ? "text-red-600" : "text-gray-900"}`}>
+                    <td className={`px-2 py-3 text-right font-semibold ${negative ? "text-red-600" : "text-gray-900"}`}>
                       {s.margin === null ? "—" : `${s.margin.toFixed(1)}%`}
                     </td>
-                    <td className="px-3 py-3 text-right text-gray-900">{perHour(s.rate)}</td>
-                    <td className="px-3 py-3 text-right text-gray-400">{perHour(s.cost)}</td>
-                    <td className={`py-3 pl-3 text-right font-semibold ${s.profitPerHour < 0 ? "text-red-600" : "text-gray-900"}`}>
+                    <td className="px-2 py-3 text-right text-gray-900">{perHour(s.rate)}</td>
+                    <td className="px-2 py-3 text-right text-gray-400">{perHour(s.cost)}</td>
+                    <td className={`py-3 pl-2 text-right font-semibold ${s.profitPerHour < 0 ? "text-red-600" : "text-gray-900"}`}>
                       {perHour(s.profitPerHour)}
                     </td>
                   </tr>

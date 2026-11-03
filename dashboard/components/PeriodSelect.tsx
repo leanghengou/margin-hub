@@ -2,10 +2,10 @@
 import { useRouter, useSearchParams } from "next/navigation";
 
 const options = [
-  { value: "3", label: "3 months" },
-  { value: "6", label: "6 months" },
-  { value: "12", label: "12 months" },
-  { value: "24", label: "All time" },
+  { value: "3", label: "3 mo", fullLabel: "Last 3 months" },
+  { value: "6", label: "6 mo", fullLabel: "Last 6 months" },
+  { value: "12", label: "12 mo", fullLabel: "Last 12 months" },
+  { value: "24", label: "All", fullLabel: "All time" },
 ];
 
 export default function PeriodSelect() {
@@ -19,6 +19,8 @@ export default function PeriodSelect() {
           key={option.value}
           type="button"
           aria-pressed={months === option.value}
+          aria-label={option.fullLabel}
+          title={option.fullLabel}
           onClick={() => router.push(`?months=${option.value}`)}
           className={`cursor-pointer rounded px-2.5 py-1 text-xs font-medium transition-colors ${
             months === option.value

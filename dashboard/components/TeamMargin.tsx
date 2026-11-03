@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import PeriodSelect from "./PeriodSelect";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -63,10 +64,12 @@ export default function TeamMarginChart({ rows }: { rows: MarginRow[] }) {
   };
 
   return (
-  <div className="w-[35%] h-full bg-white border border-slate-200 rounded-xl p-5">
+  <div className="w-[35%] bg-white border border-slate-200 rounded-xl p-5">
+    <div className="flex items-center justify-between mb-3">
     <h5 className="text-[0.7rem] font-medium uppercase tracking-wide mb-3">
       Team margin · revenue vs cost
     </h5>
+    <PeriodSelect/></div>
     <div className="relative h-64">
       <Bar data={data} options={options} />
     </div>

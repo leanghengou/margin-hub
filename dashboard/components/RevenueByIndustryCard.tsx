@@ -8,7 +8,7 @@ export default async function RevenueByIndustryCard() {
   const best = [...rows].sort((a, b) => b.margin_pct - a.margin_pct)[0]
 
   return (
-    <div className="flex max-h-[calc(100vh-4rem)] flex-col rounded-lg border border-stone-200 bg-white p-5">
+    <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-stone-200 bg-white p-5">
       <div className="flex justify-between">
         <h2 className="text-sm font-semibold uppercase">Revenue by industry · Oct 2025 – Sep 2026</h2>
         <span className="text-xs text-stone-500">12 complete months</span>
@@ -22,7 +22,7 @@ export default async function RevenueByIndustryCard() {
               <th className="pb-2 text-right font-normal">Clients</th>
               <th className="pb-2 text-right font-normal">Revenue</th>
               <th className="pb-2 text-right font-normal">Gross profit</th>
-              <th className="pb-2 pl-6 font-normal" colSpan={2}>Margin %</th>
+              <th className="pb-2 pl-4 font-normal" colSpan={2}>Margin %</th>
               <th className="pb-2 text-right font-normal">Rate</th>
             </tr>
           </thead>
@@ -37,8 +37,8 @@ export default async function RevenueByIndustryCard() {
                   <td className="py-3 text-right">{r.clients}</td>
                   <td className="py-3 text-right">{money(r.revenue)}</td>
                   <td className={`py-3 text-right ${loss ? 'text-red-600' : ''}`}>{money(r.gross_profit)}</td>
-                  <td className="py-3 pl-6">
-                    <div className="h-3.5 w-32 bg-stone-100">
+                  <td className="py-3 pl-4">
+                    <div className="h-3.5 w-full min-w-12 bg-stone-100">
                       <div
                         className={`h-full ${loss ? 'bg-red-600' : 'bg-green-700'}`}
                         style={{ width: `${width}%` }}

@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function ServicesPage() {
   const [clientListTable, invoiceTable, revenueByTier] = await Promise.all([getClientListTable(), getInvoiceTable(), getRevenueByTier()]);
   return (
-    <div className="flex flex-row gap-3 p-5">
+    <div className="h-full flex flex-row gap-3 p-5">
         <ClientListTable rows={clientListTable}/>
-    <div className="w-[40%] flex flex-col gap-3">
+    <div className="w-[40%] shrink-0 min-w-0 min-h-0 flex flex-col gap-3">
         <PendingInvoiceTable rows={invoiceTable}/>
         <RevenueByTierTable/>
         <RevenueByIndustryCard/>

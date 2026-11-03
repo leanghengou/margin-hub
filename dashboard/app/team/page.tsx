@@ -29,7 +29,7 @@ export default async function Team({ searchParams }: { searchParams: any }) {
   const weekGrid = { gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))` };
 
   return (
-    <div className="p-5 flex flex-col gap-3">
+    <div className="h-full p-5 flex flex-col gap-3">
       {/* Row 1: over capacity + heatmap */}
       <div className="flex gap-3">
         <div className="w-[30%] bg-white border border-slate-200 rounded-xl p-5">
@@ -144,10 +144,11 @@ export default async function Team({ searchParams }: { searchParams: any }) {
       </div>
 
       {/* Row 2: charts */}
-      <div className="flex items-start gap-3">
+      <div className="flex flex-1 min-h-0 gap-3">
         <TeamEconomics months={months} teams={teamEconomic} />
+         <TeamMargin rows={teamLoggedMargin} />
         <TeamHoursChart rows={teamLoggedHour} />
-        <TeamMargin rows={teamLoggedMargin} />
+       
       </div>
     </div>
   );

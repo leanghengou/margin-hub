@@ -20,7 +20,7 @@ export default async function RevenueByTierTable() {
             <th className="pb-2 text-right font-normal">Clients</th>
             <th className="pb-2 text-right font-normal">Revenue</th>
             <th className="pb-2 text-right font-normal">Gross profit</th>
-            <th className="pb-2 pl-6 font-normal" colSpan={2}>Margin %</th>
+            <th className="pb-2 pl-4 font-normal" colSpan={2}>Margin %</th>
             <th className="pb-2 text-right font-normal">Rate</th>
           </tr>
         </thead>
@@ -31,8 +31,8 @@ export default async function RevenueByTierTable() {
               <td className="py-4 text-right">{r.clients}</td>
               <td className="py-4 text-right">{money(r.revenue)}</td>
               <td className="py-4 text-right">{money(r.gross_profit)}</td>
-              <td className="py-4 pl-6">
-                <div className="h-3.5 w-32 bg-stone-100">
+              <td className="py-4 pl-4">
+                <div className="h-3.5 w-full min-w-12 bg-stone-100">
                   <div
                     className="h-full bg-green-700"
                     style={{ width: `${Math.min(Math.max(r.margin_pct, 0), 60) / 60 * 100}%` }}
