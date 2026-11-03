@@ -62,7 +62,7 @@ export default function AgencyTrendChart({ rows, months }: { rows: any[], months
               },
               tooltip: {
                 callbacks: {
-                  label: (ctx) => `${ctx.dataset.label}: ${compactUsd.format(ctx.parsed.y)}`,
+                  label: (ctx) => `${ctx.dataset.label}: ${compactUsd.format(ctx.parsed.y ?? 0)}`,
                 },
               },
             },

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { formatMoney } from "@/lib/queries";
-import ClientTrendLine from "./ClientTrendLine";
 import AgencyTrendChart from "./AgencyTrendChart";
 import ServiceBubble from "./ServicesBubbles";
 import BudgetBurn from "./BudgetBurn";
@@ -9,7 +8,6 @@ export const dynamic = 'force-dynamic'
 export default async function ClientTables({ budgetBurn, ClientRowTables, agencyTrend, serviceMix, months}: any) {
 
 const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_0_-1px_0_#d1d5db]";
-    console.log("ClientRowTable", ClientRowTables)
   return(
 <section className="flex flex-1 flex-row m-5">
 

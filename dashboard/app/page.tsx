@@ -2,7 +2,6 @@ import { getKpis, getClientStatus, getBudgetBurn, getClientTables ,getAgencyTren
 import KpiCards from "@/components/KpiCards";
 import ClientTables from "@/components/ClientTables";
 import ClientProfilePopup from "@/components/ClientProfilePopUp";
-import SideNavigation from "@/components/SideNavigation";
 export const dynamic = 'force-dynamic'
 
 

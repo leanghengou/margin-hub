@@ -19,6 +19,7 @@ type Row = {
   cro: string;
   paid_ads: string;
   account_mgmt: string;
+  website: string;
 };
 
 // Canvas can't read Tailwind classes → hex values (swap in your brand-700/500/300)
@@ -28,7 +29,7 @@ const teams = [
 { key: 'website', label: 'Website', color: '#cbd5e1' },
 ] as const;
 
-export default function TeamHoursChart({ rows }: { rows:any }) {
+export default function TeamHoursChart({ rows }: { rows:Row[] }) {
   const data = {
     labels: rows.map((r) => r.label),
     datasets: teams.map((t) => ({

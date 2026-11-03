@@ -74,10 +74,15 @@ export async function getClientStatus() {
   `;
   return row;
 }
-
+export type BurnRow = {
+  client: string;
+  service: string;
+  budgeted_hour: number;
+  hours_spent_by_team: number;
+};
 
 export async function getBudgetBurn() {
-  return sql`
+  return sql<BurnRow[]>`
     SELECT client, service, budgeted_hour, hours_spent_by_team
     FROM v_budget_burn
     WHERE budget_month = date_trunc('month', current_date)::date
@@ -336,10 +341,17 @@ GROUP BY u.employee_id, u.employee_name, t.name, r.hourly_cost
 ORDER BY worker_utilisation DESC
   `
 }
-
+export type TeamHourRow = {
+  label: string;
+  seo: string;
+  cro: string;
+  paid_ads: string;
+  account_mgmt: string;
+  website: string;
+};
 
 export async function getTeamLoggedHour(months:number){
-  return sql`
+  return sql<TeamHourRow[]>`
 WITH monthly AS (
 SELECT
 to_date(month, 'YYYY-MM') AS month,
@@ -367,10 +379,16 @@ ORDER BY m.month;
 
 
 
-
+export type MarginRow = {
+  team: string;
+  revenue: string;
+  labour_cost: string;
+  gross_profit: string;
+  margin_pct: string;
+};
 
 export async function getTeamLoggedMargin(months: number) {
-return sql`
+return sql<MarginRow[]>`
 WITH bounds AS (
 SELECT date_trunc('month', MAX(work_date))::date AS latest_month
 FROM v_entry_cost

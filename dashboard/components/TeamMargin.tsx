@@ -1,6 +1,6 @@
 // components/TeamMarginChart.tsx
 'use client';
-
+import type { MarginRow } from "@/lib/queries";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,13 +13,7 @@ import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-type MarginRow = {
-  team: string;
-  revenue: string;
-  labour_cost: string;
-  gross_profit: string;
-  margin_pct: string;
-};
+
 
 export default function TeamMarginChart({ rows }: { rows: MarginRow[] }) {
   const data = {
