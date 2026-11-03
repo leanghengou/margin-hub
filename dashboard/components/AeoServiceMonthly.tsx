@@ -4,28 +4,33 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  LineElement,
+  PointElement,
+  Filler,
   Tooltip,
   Legend,
   type ChartOptions,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip, Legend);
 
 type Row = Record<string, unknown>;
 
 
-const GREEN = "#1aaf5d"; 
-const BLUE = "#4f7cff";  
-const RED = "#ff5468";   
+const GREEN = "#1aaf5d";
+const GREEN_FILL = "rgba(26, 175, 93, 0.1)";
+const GREY = "#94a3b8";
+const RED = "#ff5468";
+const PEAK = "#1e4d14"; // forest, from the theme
 
+// Swatches match the chart: solid line, dashed line, dot
 const LEGEND = [
-  { label: "Revenue", color: GREEN },
-  { label: "Labour cost", color: BLUE },
-  { label: "Loss", color: RED },
+  { label: "Revenue", className: "h-0.5 w-4", style: { background: GREEN } },
+  { label: "Labour cost", className: "w-4 border-t-2 border-dashed", style: { borderColor: GREY } },
+  { label: "Loss", className: "size-2 rounded-full", style: { background: RED } },
 ];
 
 
@@ -42,6 +47,12 @@ const monthLabel = (ym: string) => {
     timeZone: "UTC",
   });
   return `${mon} '${String(y).slice(2)}`;
+};
+
+// Axis labels: month only ("Jan"); the tooltip keeps the year
+const monthName = (ym: string) => {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "short", timeZone: "UTC" });
 };
 
 
@@ -74,7 +85,7 @@ export default function ServiceMonthlyCharts({ rows }: { rows: Row[] }) {
         <div className="flex gap-4 text-xs text-gray-600">
           {LEGEND.map((l) => (
             <span key={l.label} className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-sm" style={{ background: l.color }} />
+              <span className={l.className} style={l.style} />
               {l.label}
             </span>
           ))}
@@ -111,33 +122,45 @@ function ServiceChart({ title, rows }: { title: string; rows: Row[] }) {
     })
     .sort((a, b) => a.month.localeCompare(b.month));
 
+  // Best revenue month gets a ring; loss months get a red dot
+  const peak = points.reduce((best, p, i) => (p.revenue > points[best].revenue ? i : best), 0);
+
+  // Label the first and last month plus two evenly spaced ones between
+  const last = points.length - 1;
+  const labelled = new Set([0, Math.round(last / 3), Math.round((2 * last) / 3), last]);
+
   const data = {
     labels: points.map((p) => monthLabel(p.month)),
     datasets: [
       {
-        // Taller bar, behind: revenue (green) or, in a loss month, cost (red)
-        label: "back",
-        data: points.map((p) => Math.max(p.revenue, p.labour_cost)),
-        backgroundColor: points.map((p) => (p.loss ? RED : GREEN)),
-        barPercentage: 0.8,
-        categoryPercentage: 0.9,
-        grouped: false,
-        order: 1,
+        label: "Revenue",
+        data: points.map((p) => p.revenue),
+        borderColor: GREEN,
+        borderWidth: 2,
+        backgroundColor: GREEN_FILL,
+        fill: "origin",
+        tension: 0.3,
+        pointRadius: points.map((p, i) => (i === peak ? 5 : p.loss ? 3 : 0)),
+        pointBackgroundColor: points.map((_, i) => (i === peak ? "#fff" : RED)),
+        pointBorderColor: points.map((_, i) => (i === peak ? PEAK : RED)),
+        pointBorderWidth: points.map((_, i) => (i === peak ? 2 : 0)),
+        pointHoverRadius: 5,
       },
       {
-        // Shorter bar, in front: cost (blue) or, in a loss month, revenue (green)
-        label: "front",
-        data: points.map((p) => Math.min(p.revenue, p.labour_cost)),
-        backgroundColor: points.map((p) => (p.loss ? GREEN : BLUE)),
-        barPercentage: 0.8,
-        categoryPercentage: 0.9,
-        grouped: false,
-        order: 0,
+        label: "Labour cost",
+        data: points.map((p) => p.labour_cost),
+        borderColor: GREY,
+        borderWidth: 1.5,
+        borderDash: [4, 4],
+        fill: false,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 3,
       },
     ],
   };
 
-  const options: ChartOptions<"bar"> = {
+  const options: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: { mode: "index", intersect: false },
@@ -167,35 +190,42 @@ function ServiceChart({ title, rows }: { title: string; rows: Row[] }) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: "#64748b", maxRotation: 0, autoSkip: true, font: { size: 11 } },
+        // "inner" keeps the end labels inside the plot, so no extra side padding is reserved
+        ticks: {
+          color: "#94a3b8",
+          font: { size: 12 },
+          padding: 8,
+          maxRotation: 0,
+          autoSkip: false,
+          align: "inner",
+          callback: (_, index) => (labelled.has(index) ? monthName(points[index].month) : null),
+        },
       },
       y: {
         min: 0,
-        bounds: "data",
-        grace: "5%",
-        grid: { color: "#f1f5f9" },
-        ticks: {
-          color: "#64748b",
-          font: { size: 11 },
-          maxTicksLimit: 5,
-          // Top tick is the uneven data max (bounds: "data"), so leave it unlabelled
-          callback: (v, index, ticks) =>
-            index === ticks.length - 1 ? "" : `$${Math.round(Number(v) / 1000)}k`,
-        },
+        // Headroom so the line sits below the top edge and the peak ring isn't clipped
+        grace: "20%",
+        border: { display: false },
+        grid: { color: "#f1f5f9", drawTicks: false },
+        // Values live in the tooltip, so no y numbers
+        ticks: { display: false, maxTicksLimit: 5 },
       },
     },
   };
 
   return (
     <section className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white p-4">
-      <h2
-        className="mb-3 truncate text-xs font-semibold uppercase tracking-wide text-gray-800"
-        title={title}
-      >
-        {title}
-      </h2>
+      <div className="mb-3 flex min-w-0 items-baseline gap-2">
+        <h2
+          className="truncate text-xs font-semibold uppercase tracking-wide text-gray-800"
+          title={title}
+        >
+          {title}
+        </h2>
+        <span className="shrink-0 text-xs text-gray-500">Monthly · revenue vs labour</span>
+      </div>
       <div className="relative h-72">
-        <Bar data={data} options={options} />
+        <Line data={data} options={options} />
       </div>
     </section>
   );
