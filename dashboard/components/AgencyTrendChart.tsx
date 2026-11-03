@@ -5,7 +5,6 @@ import { Line } from "react-chartjs-2";
 import {
   Chart, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend,
 } from "chart.js";
-import PeriodSelect from "@/components/PeriodSelect";
 
 Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
@@ -28,7 +27,6 @@ export default function AgencyTrendChart({ rows, months }: { rows: any[], months
         <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
           {`Revenue vs profit · ${ months} months`}
         </h5>
-        <PeriodSelect/>
       </div>
       <div className="relative h-56">
         <Line

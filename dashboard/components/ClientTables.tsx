@@ -3,21 +3,18 @@ import { formatMoney } from "@/lib/queries";
 import AgencyTrendChart from "./AgencyTrendChart";
 import ServiceBubble from "./ServicesBubbles";
 import BudgetBurn from "./BudgetBurn";
-import PeriodSelect from "./PeriodSelect";
 export const dynamic = 'force-dynamic'
 
 export default async function ClientTables({ budgetBurn, ClientRowTables, agencyTrend, serviceMix, months}: any) {
 
-const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_0_-1px_0_#d1d5db]";
+const th = "sticky top-0 z-10 bg-white font-normal pb-3 text-left shadow-[inset_0_-1px_0_#d1d5db]";
   return(
 <section className="flex flex-1 flex-row gap-5 min-h-0">
 
-<div className="w-1/2 bg-white rounded-lg p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
-  <div className="flex items-center justify-between gap-2 mb-3">
-    <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
-      {`Client profitability · ${months} months`}
-    </h5>
-    <PeriodSelect/>
+<div className="w-1/2 bg-white rounded-lg border border-gray-200 p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
+  <div className="flex items-center gap-2 mb-5">
+    <h2 className="text-ink text-lg font-medium">Client profitability</h2>
+    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>
   </div>
 
   {/* CHANGED: one div became two */}
@@ -25,8 +22,8 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
     <div className="absolute inset-0 overflow-y-auto">
       <table className="w-full text-ink text-[0.9rem]">
         <thead className="sticky top-0 z-10 bg-white">
-          <tr className="text-[0.7rem] text-gray-500">
-            <th className={th}>Client</th>
+          <tr className="text-sm text-gray-500">
+            <th className={th}>Clients</th>
             <th className={th}>Revenue</th>
             <th className={th}>Gross profit</th>
             <th className={th}>Margin</th>
@@ -39,20 +36,20 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
             key={item.client_id}
             className="hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 p-5 relative"
           >
-            <td className="font-medium  px-1 py-1.5">  
+            <td className="px-1 py-2.5">
             <Link
             href={`?client=${item.client_id}`}
             scroll={false}
-            className="block w-64 truncate font-medium after:absolute after:inset-0"
+            className="block w-64 truncate after:absolute after:inset-0"
           >
             <div className="w-55 truncate">{item.client}</div>
             </Link>
             </td>
-            <td className=" font-medium truncate">{formatMoney(item.revenue)}</td>
-            <td className={` font-medium truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
+            <td className="truncate">{formatMoney(item.revenue)}</td>
+            <td className={`truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
               {formatMoney(item.gross_profit)}
             </td>
-            <td className={` font-medium truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
+            <td className={`truncate ${item.gross_profit < 0 ? "text-red-600" : ""}`}>
               {item.margin_pct}%
             </td>
             <td className="">
@@ -78,11 +75,11 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
 
 <BudgetBurn budgetBurn={budgetBurn} />
 
-
+{/* 
 <div className="flex shrink-0 gap-5">
 <AgencyTrendChart months={months} rows={agencyTrend}/>
 <ServiceBubble rows={serviceMix}/>
-</div>
+</div> */}
 
 
 

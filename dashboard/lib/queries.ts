@@ -55,7 +55,18 @@ export async function getKpis(months:number) {
 }
 
 
-
+export async function getClientRetention() {
+  const [row]= await sql`
+  SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (WHERE end_date IS NULL)     AS active,
+  COUNT(*) FILTER (WHERE end_date IS NOT NULL) AS churned
+FROM clients
+WHERE start_date < current_date 
+;
+  `
+  return row
+}
 
 
 export async function getClientStatus() {
@@ -136,7 +147,8 @@ WITH selected_month AS (
     SELECT
 revenue_trend.work_month,
 SUM(revenue_trend.revenue) AS revenue,
-SUM(revenue_trend.profit) AS profit
+SUM(revenue_trend.profit) AS profit,
+ROUND(100.0 * SUM(revenue_trend.profit) / NULLIF(SUM(revenue_trend.revenue), 0), 1) AS margin
 FROM v_client_month_pnl revenue_trend, selected_month bound_month
 
 WHERE work_month BETWEEN bound_month.first_month AND bound_month.last_month
