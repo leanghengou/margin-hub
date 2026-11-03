@@ -13,16 +13,16 @@ export default function PeriodSelect() {
   const months = useSearchParams().get("months") ?? "3";
 
   return (
-    <div className="inline-flex rounded-md border border-line bg-surface p-0.5">
+    <div className="inline-flex rounded-md bg-gray-100 p-0.5">
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
           aria-pressed={months === option.value}
           onClick={() => router.push(`?months=${option.value}`)}
-          className={`cursor-pointer rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+          className={`cursor-pointer rounded px-2.5 py-1 text-xs font-medium transition-colors ${
             months === option.value
-              ? "bg-leaf text-white"
+              ? "bg-black text-white"
               : "text-muted hover:text-ink"
           }`}
         >

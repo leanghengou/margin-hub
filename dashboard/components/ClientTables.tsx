@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/queries";
 import AgencyTrendChart from "./AgencyTrendChart";
 import ServiceBubble from "./ServicesBubbles";
 import BudgetBurn from "./BudgetBurn";
+import PeriodSelect from "./PeriodSelect";
 export const dynamic = 'force-dynamic'
 
 export default async function ClientTables({ budgetBurn, ClientRowTables, agencyTrend, serviceMix, months}: any) {
@@ -12,9 +13,12 @@ const th = "sticky top-0 z-10 bg-white font-normal py-1 text-left shadow-[inset_
 <section className="flex flex-1 flex-row m-5">
 
 <div className="w-1/2 bg-white rounded-lg p-5 flex flex-col"> {/* CHANGED: added flex flex-col */}
-  <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide mb-3">
-    {`Client profitability · ${months} months`}
-  </h5>
+  <div className="flex items-center justify-between gap-2 mb-3">
+    <h5 className="text-ink text-[0.7rem] font-medium uppercase tracking-wide">
+      {`Client profitability · ${months} months`}
+    </h5>
+    <PeriodSelect/>
+  </div>
 
   {/* CHANGED: one div became two */}
   <div className="relative flex-1 min-h-[400px]">

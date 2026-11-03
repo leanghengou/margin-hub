@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="w-50 shrink-0 h-full p-5">
         <SideNavigation/>
         </div>
-         <div className="flex-1 min-w-0 bg-[#f1f1f1] mt-5 rounded-tl-sm overflow-y-auto">
+         <div className="flex-1 min-w-0 bg-[#f1f1f1] mt-2 rounded-tl-sm overflow-y-auto">
         {children}
         </div>
 </div>
