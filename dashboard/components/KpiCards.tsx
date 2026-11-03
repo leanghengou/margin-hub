@@ -69,7 +69,7 @@ export default async function KpiCards({ agencyTrend, months, clientRetention }:
     </div>
     <section className="flex gap-4 flex-row">
       {/* Revenue */}
-      <div className="flex-1 overflow-hidden bg-white p-5 rounded-lg">
+      <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
         <div className={top}>
           <div>
             <h5 className="text-ink text-[0.8rem] font-medium">Revenue · {months} months</h5>
@@ -83,7 +83,7 @@ export default async function KpiCards({ agencyTrend, months, clientRetention }:
       </div>
 
       {/* Gross profit */}
-      <div className="flex-1 overflow-hidden bg-white p-5 rounded-lg">
+      <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
         <div className={top}>
           <div>
             <h5 className="text-ink text-[0.8rem] font-medium">Gross Profit · {months} months</h5>
@@ -97,7 +97,7 @@ export default async function KpiCards({ agencyTrend, months, clientRetention }:
       </div>
 
       {/* Margin */}
-      <div className="flex-1 overflow-hidden bg-white p-5 rounded-lg">
+      <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
         <div className={top}>
           <div>
             <h5 className="text-ink text-[0.8rem] font-medium">Margin · {months} months</h5>

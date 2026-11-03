@@ -30,7 +30,7 @@ export default function BudgetBurn({ budgetBurn }: { budgetBurn: BurnRow[] }) {
   const month = new Date().toLocaleString("en-US", { month: "short" });
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col min-h-0 flex-1">
+    <section className="rounded-2xl bg-white p-5 flex flex-col min-h-0 flex-1">
       <div className="mb-5 flex items-center gap-2">
         <h2 className="text-ink text-lg font-medium">Budget burn</h2>
         <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">

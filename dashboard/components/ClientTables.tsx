@@ -11,7 +11,7 @@ const th = "sticky top-0 z-10 bg-white font-normal pb-3 text-left shadow-[inset_
   return(
 <section className="flex flex-1 flex-row gap-5 min-h-0">
 
-<div className="w-1/2 bg-white rounded-lg border border-gray-200 p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
+<div className="w-1/2 bg-white rounded-2xl p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
   <div className="flex items-center gap-2 mb-5">
     <h2 className="text-ink text-lg font-medium">Client profitability</h2>
     <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>

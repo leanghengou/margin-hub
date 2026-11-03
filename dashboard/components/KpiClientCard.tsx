@@ -16,7 +16,7 @@ export default function KpiClientCard({ total, active, churned }: Props) {
   const retained = share(active);
 
   return (
-    <div className="flex-1 overflow-hidden bg-white p-5 rounded-lg">
+    <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
       {/* All clients ever, not the selected period */}
       <h5 className="text-ink text-[0.8rem] font-medium">Clients · All time</h5>
       <div className="flex items-center gap-2">
