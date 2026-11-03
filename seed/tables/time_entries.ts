@@ -3,11 +3,12 @@ import { writeCsv, readCsv } from "../lib/csv.js";
 import { addDays, fromISODate, toISODate, isWeekday } from "../lib/dates.js";
 import { ECOMMERCE_IDS, NEW_CLIENT_ID, clientWindow } from "../stories.js";
 import { MONEY_LOSING_PROJECT_IDS, CREEP_PROJECT } from "./projects.js";
+import { END_DATE } from "../config.js";
 
 // Hours stop at yesterday: nobody logs time in the future.
 // (Invoices go to Dec 2026 because fees are scheduled; hours aren't.)
 const FIRST_DAY = "2025-01-01";
-const LAST_DAY = "2026-10-05";
+const LAST_DAY = END_DATE;
 
 // Which team delivers each service.
 // 1 SEO, 2 AEO/GEO -> SEO team; 3 Web Dev, 4 CRO -> Website team; 5 Paid Ads -> Ads team.

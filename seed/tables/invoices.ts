@@ -2,10 +2,11 @@ import { faker, reseed } from "../lib/random.js";
 import { writeCsv, readCsv } from "../lib/csv.js";
 import { toISODate, startOfMonth, fromISODate, addDays } from "../lib/dates.js";
 import { CLIENT_COUNT, clientWindow } from "../stories.js";
+import { END_DATE } from "../config.js";
 
 const RECURRING_SERVICE_IDS = [1, 2, 4, 5];
 const WEB_DEV_SERVICE = 3;
-const TODAY = fromISODate("2026-10-06");
+const TODAY = fromISODate("2026-11-02");
 
 // Read projects once, so invoices match the work that was actually done.
 function loadProjects() {
@@ -25,7 +26,7 @@ export function generateInvoices(): void {
 
   for (let clientId = 1; clientId <= CLIENT_COUNT; clientId++) {
     const { start, end } = clientWindow(clientId);
-    const windowEnd = end ?? "2026-12-31";
+const windowEnd = end ?? END_DATE;
     const clientProjects = projects.filter((p) => p.clientId === clientId);
 
     // Recurring services this client actually has projects for.

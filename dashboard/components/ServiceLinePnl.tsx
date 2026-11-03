@@ -1,10 +1,7 @@
 type Row = Record<string, unknown>;
 
-// Swatch greens, darkest = highest revenue (rows arrive sorted by revenue DESC).
-// Hex values so they never depend on which brand shades exist in the theme.
 const SWATCH = ["#2f7a1f", "#3f9a2b", "#5cb83f", "#7fcb5c", "#a6dc85"];
 
-// 1350000 -> "$1.35M", 363700 -> "$363.7k"
 const compact = (v: number) => {
   const sign = v < 0 ? "-" : "";
   const abs = Math.abs(v);
@@ -13,11 +10,9 @@ const compact = (v: number) => {
   return `${sign}$${Math.round(abs)}`;
 };
 
-// 94 -> "$94/h", -12 -> "-$12/h"
 const perHour = (v: number) => `${v < 0 ? "-" : ""}$${Math.abs(v)}/h`;
 
 export default function ServiceLinePnl({ rows }: { rows: Row[] }) {
-  // postgres.js numerics are strings, so convert them.
   const services = rows.map((r) => ({
     service: String(r.service),
     revenue: Number(r.revenue),

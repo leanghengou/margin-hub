@@ -5,18 +5,27 @@ import { toISODate, fromISODate, addDays } from "./lib/dates.js";
 // clients, client_budgets, invoices, projects and time_entries
 // all read from here, so their dates always agree.
 
-export const CLIENT_COUNT = 42;
+export const CLIENT_COUNT = 56;
 
 // ids 1–26 are founding clients (start 2025-01-01).
-// ids 27–42 join later (16 late joiners).
+// ids 27–42 joined Feb 2025 – Jul 2026 (already in the data today).
+// ids 43–56 join Dec 2026 – Jun 2028, so the agency keeps growing as real time passes.
 export const FIRST_LATE_JOINER = 27;
+const FIRST_FUTURE_JOINER = 43;
 
 // The new client with heavy setup hours.
 export const NEW_CLIENT_ID = 28;
 
 // E-commerce clients that drive the Q4 Paid Ads spike.
-// They never churn, so the spike shows in both years.
+// They never churn, so the spike shows every year.
 export const ECOMMERCE_IDS = [2, 6, 9, 13, 17, 21, 25];
+
+// Join and churn limits. Keep them before END_DATE in config.ts.
+const LAST_JOIN = "2026-07-01";        // late joiners (27–42) start before this
+const FUTURE_JOIN_FROM = "2026-12-01"; // future joiners (43–56) start between these
+const FUTURE_JOIN_TO = "2028-06-01";
+const LAST_CHURN_START = "2028-05-31"; // a client must start by this date to be able to churn
+const LAST_CHURN = "2028-09-30";       // nobody churns after this
 
 // Two churn dates we pin by hand. The rest are picked below.
 const FIXED_CHURN: Record<number, string> = {
@@ -24,8 +33,9 @@ const FIXED_CHURN: Record<number, string> = {
   22: "2026-05-31",
 };
 
-// Total clients that churn over the two years.
-const CHURN_TARGET = 22;
+// Total clients that churn over the whole range.
+// Lower than new joiners, so the agency grows slowly instead of shrinking.
+const CHURN_TARGET = 18;
 
 export type ClientWindow = {
   clientId: number;
@@ -43,34 +53,37 @@ function buildWindows(): ClientWindow[] {
   const windows: ClientWindow[] = [];
 
   // Step 1: start dates.
+  // ids run in order, so clients 1–42 keep the same start dates as before.
   for (let id = 1; id <= CLIENT_COUNT; id++) {
     let start = "2025-01-01";
     if (id === NEW_CLIENT_ID) {
       start = "2026-03-01";
+    } else if (id >= FIRST_FUTURE_JOINER) {
+      start = toISODate(faker.date.between({ from: FUTURE_JOIN_FROM, to: FUTURE_JOIN_TO }));
     } else if (id >= FIRST_LATE_JOINER) {
-      start = toISODate(faker.date.between({ from: "2025-02-01", to: "2026-07-01" }));
+      start = toISODate(faker.date.between({ from: "2025-02-01", to: LAST_JOIN }));
     }
     windows.push({ clientId: id, start, end: FIXED_CHURN[id] ?? null });
   }
 
   // Step 2: pick the other churners.
-  // Skip e-commerce, the new client, and anyone who joined after
-  // May 2026 (they need at least ~4 months before they can leave).
+  // Skip e-commerce, the new client, and anyone who joined too late
+  // (they need at least ~4 months before they can leave).
   const candidates = windows.filter(
     (w) =>
       w.end === null &&
       w.clientId !== NEW_CLIENT_ID &&
       !ECOMMERCE_IDS.includes(w.clientId) &&
-      w.start <= "2026-05-31",
+      w.start <= LAST_CHURN_START,
   );
   const extraCount = CHURN_TARGET - Object.keys(FIXED_CHURN).length;
   const churners = faker.helpers.arrayElements(candidates, extraCount);
 
   // Step 3: give each churner an end date, spread across the range,
-  // at least 120 days after they started, and no later than Sep 2026.
+  // at least 120 days after they started, and no later than LAST_CHURN.
   for (const w of churners) {
     const earliest = addDays(fromISODate(w.start), 120);
-    const d = faker.date.between({ from: earliest, to: fromISODate("2026-09-30") });
+    const d = faker.date.between({ from: earliest, to: fromISODate(LAST_CHURN) });
     w.end = toISODate(lastDayOfMonth(d));
   }
 
