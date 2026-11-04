@@ -241,7 +241,7 @@ export async function getClientDetail(client : number) {
       c.location,
       to_char(c.start_date, 'Mon YYYY') AS joined,
       COALESCE(to_char(c.end_date, 'Mon YYYY'), 'Active') AS ended,
-      m.work_month,
+   to_char(to_date(m.work_month, 'YYYY-MM'), 'Mon YYYY') AS month_label,
       s.name AS service,
       COALESCE(i.invoiced, 0)::float8     AS revenue,
       COALESCE(mc.labour_cost, 0)::float8 AS labour_cost,
@@ -249,7 +249,7 @@ export async function getClientDetail(client : number) {
       ROUND(100.0 * (COALESCE(i.invoiced, 0) - COALESCE(mc.labour_cost, 0))
             / NULLIF(i.invoiced, 0), 1)::float8 AS margin_pct,
       i.invoice_id,
-      i.invoice_date,
+      to_char(i.invoice_date, 'Mon YYYY') as invoice_date,
       i.invoiced,
       i.is_paid,
       i.paid_date,
@@ -270,13 +270,17 @@ export async function getClientDetail(client : number) {
       ON cb.client_id  = ${client}
      AND cb.service_id = su.service_id
      AND to_char(cb.month, 'YYYY-MM') = m.work_month
+       
+
+     
+     
+
 
     -- Drop empty combinations, e.g. a one-off service in months it wasn't sold
-    WHERE i.invoice_id IS NOT NULL
-       OR mc.labour_cost IS NOT NULL
-       OR cb.client_id IS NOT NULL
+   WHERE i.invoice_id IS NOT NULL
+	   AND i.invoice_date < current_date
 
-    ORDER BY m.work_month, s.name;
+    ORDER BY m.work_month desc;
   `
 }
 

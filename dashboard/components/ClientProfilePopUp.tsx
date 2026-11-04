@@ -64,7 +64,7 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
               <table className="w-full text-[0.8rem] text-ink">
                 <thead>
                   <tr className={`border-b border-gray-200 text-left ${label}`}>
-                    <th className={`${cell} font-normal`}>Month</th>
+                    <th className={`${cell} font-normal`}>Period</th>
                     <th className={`${cell} font-normal`}>Service</th>
                     <th className={`${cell} font-normal text-right`}>Revenue</th>
                     <th className={`${cell} font-normal text-right`}>Margin</th>
@@ -73,8 +73,8 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={`${r.work_month}-${r.service}`} className="border-b border-gray-100">
-                      <td className={cell}>{r.work_month}</td>
+                    <tr key={`${r.month_label}-${r.service}`} className="border-b border-gray-100">
+                      <td className={cell}>{r.month_label}</td>
                       <td className={cell}>{r.service}</td>
                       <td className={`${cell} text-right`}>{money(r.revenue)}</td>
                       <td className={`${cell} text-right ${Number(r.margin_pct) < 0 ? "text-red-600" : ""}`}>
