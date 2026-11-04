@@ -2,17 +2,33 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { CA, US } from 'country-flag-icons/react/3x2';
+
+const flags: Record<string, typeof CA> = { Canada: CA, USA: US };
+
 
 const money = (v: any) => "$" + Math.round(Number(v)).toLocaleString();
 
 export default function ClientProfilePopup({ open, data }: { open: boolean; data?: any[] | null }) {
+  
   const router = useRouter();
   const close = () => router.push("?", { scroll: false });
 
   const rows = data ?? [];
   const info = rows[0];
 
-  const label = "text-[0.65rem] text-gray-500";
+  // location is "City, ST, Country"; the country picks the flag
+  const country: string | undefined = info?.location?.split(", ").at(-1);
+  const Flag = country ? flags[country] : undefined;
+
+  // Count from the query; amount adds up the unpaid rows ("No invoice" rows aren't counted)
+  const unpaidCount = Number(info?.missing_invoices ?? 0);
+  const unpaidAmount = rows.filter((r) => r.is_paid === false).reduce((sum, r) => sum + Number(r.revenue), 0);
+
+  const label = "text-[0.8rem] text-gray-500";
+  const pill = "mt-1 inline-block rounded px-1.5 py-0.5 text-xs";
+  const grey = "bg-gray-100 text-gray-600";
+  const detailTitle = "text-[0.8rem] font-medium text-gray-700";
   const cell = "py-2 pr-4";
 
   return (
@@ -41,21 +57,40 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
             </button>
 
             {/* Header */}
-            <div className="flex gap-10 border-b border-gray-200 p-6 pr-14">
-              <div className="min-w-0 flex-1">
-                <p className={label}>{info?.location}</p>
-                <h2 className="truncate text-[1.1rem] font-medium text-ink">
-                  {info?.client} <span className={label}>· Tier {info?.tier}</span>
-                </h2>
+            <div className="border-b border-gray-200 p-6 pr-14">
+              <div className="min-w-0">
+                <p className="flex items-center gap-1.5 text-[0.8rem] text-gray-500">
+                  {Flag && <Flag title={country} className="h-3 w-auto shrink-0 rounded-[2px]" />}
+                  {info?.location}
+                </p>
+                <h2 className="truncate text-[1.1rem] font-medium text-ink">{info?.client}</h2>
                 <p className="truncate text-[0.85rem] text-gray-500">{info?.email}</p>
               </div>
+              <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
               <div>
-                <p className={label}>Join</p>
-                <p className="text-[0.85rem] text-ink">{info?.joined}</p>
+                <p className={detailTitle}>Industry</p>
+                <span className={`${pill} ${grey}`}>{info?.industry}</span>
               </div>
               <div>
-                <p className={label}>End</p>
-                <p className="text-[0.85rem] text-ink">{info?.ended}</p>
+                <p className={detailTitle}>Tier</p>
+                <span className={`${pill} ${grey}`}>{info?.tier}</span>
+              </div>
+              <div>
+                <p className={detailTitle}>Join</p>
+                <span className={`${pill} ${grey}`}>{info?.joined}</span>
+              </div>
+              <div>
+                <p className={detailTitle}>End</p>
+                <span className={`${pill} ${info?.ended === "Active" ? "bg-green-100 text-green-700" : grey}`}>
+                  {info?.ended}
+                </span>
+              </div>
+              <div>
+                <p className={detailTitle}>Unpaid invoices{unpaidCount > 0 && ` (${unpaidCount})`}</p>
+                <span className={`${pill} ${unpaidCount > 0 ? "bg-red-100 text-red-700" : grey}`}>
+                  {unpaidCount > 0 ? money(unpaidAmount) : "None"}
+                </span>
+              </div>
               </div>
             </div>
 
