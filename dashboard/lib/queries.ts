@@ -289,22 +289,27 @@ export async function getClientDetail(client : number) {
 
 export async function getEmployeeUtilisation() {
   return sql`
- WITH bounds AS (
-   SELECT date_trunc('week', current_date)::date AS latest_week
-    )
+WITH bounds AS (
+    SELECT date_trunc('week', current_date)::date AS latest_week
+)
 
-select  employee_name, 
-employee_id,
-array_agg(utilisation ORDER BY week) AS weeks,
-array_agg(to_char(week, 'Mon') ORDER BY week) AS months
-from 
-v_employee_utilisation employee, bounds work_month
-
-where 
-employee.week < work_month.latest_week
-and employee.week >= date_trunc('year', work_month.latest_week)
-GROUP BY employee_id, employee_name
-ORDER BY employee_name
+SELECT
+    em.employee_name,
+    em.employee_id,
+	t.name as team,
+	t.id as team_id,
+    array_agg(em.utilisation ORDER BY em.week) AS weeks,
+    array_agg(to_char(em.week, 'Mon') ORDER BY em.week) AS months
+FROM
+    v_employee_utilisation em 
+	join employees e on e.id = em.employee_id
+	join teams t on t.id = e.team_id
+	cross join bounds work_month
+WHERE
+    em.week < work_month.latest_week
+    AND em.week >= date_trunc('year', work_month.latest_week)
+GROUP BY em.employee_id, em.employee_name, t.id
+ORDER BY em.employee_name
 ;
   `
 }
@@ -368,30 +373,33 @@ export type TeamHourRow = {
   website: string;
 };
 
-export async function getTeamLoggedHour(months:number){
+export async function getTeamLoggedHour(months: number) {
   return sql<TeamHourRow[]>`
-WITH monthly AS (
-SELECT
-to_date(month, 'YYYY-MM') AS month,
-team,
-hours_spent
-FROM v_team_performance
-),
-bounds AS (
-SELECT MAX(month) AS latest_month FROM monthly
-)
-SELECT
-to_char(m.month, 'Mon ''YY') AS label,
-COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'SEO'), 0) AS seo,
-COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Paid Ads'), 0) AS paid_ads,
-COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Website'), 0) AS website
-FROM monthly m
-CROSS JOIN bounds b
-WHERE m.month < b.latest_month 
-AND m.month >= date_trunc('year', b.latest_month) 
-GROUP BY m.month
-ORDER BY m.month;
-  `
+    WITH bounds AS (
+      SELECT
+        date_trunc('month', current_date)::date AS this_month,
+        (date_trunc('month', current_date) - make_interval(months => ${months}))::date AS first_month
+    ),
+    monthly AS (
+   
+      SELECT
+        to_date(month, 'YYYY-MM') AS month,
+        team,
+        hours_spent
+      FROM v_team_performance
+    )
+    SELECT
+      to_char(m.month, 'Mon YYYY') AS label,
+      COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'SEO'), 0) AS seo,
+      COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Paid Ads'), 0)AS paid_ads,
+      COALESCE(SUM(m.hours_spent) FILTER (WHERE m.team = 'Website'), 0) AS website
+    FROM monthly m
+    CROSS JOIN bounds b
+    WHERE m.month >= b.first_month   
+      AND m.month <  b.this_month    
+    GROUP BY m.month
+    ORDER BY m.month;
+  `;
 }
 
 

@@ -67,7 +67,7 @@ export default async function KpiCards({ agencyTrend, months, clientRetention }:
       <h2 className="text-ink text-2xl font-medium">Overview</h2>
       <PeriodSelect/>
     </div>
-    <section className="flex gap-4 flex-row">
+    <section className="grid grid-cols-4 gap-5">
       {/* Revenue */}
       <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
         <div className={top}>

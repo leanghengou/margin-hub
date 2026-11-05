@@ -9,9 +9,9 @@ export default async function ClientTables({ budgetBurn, ClientRowTables, agency
 
 const th = "sticky top-0 z-10 bg-white font-normal pb-3 text-left shadow-[inset_0_-1px_0_#d1d5db]";
   return(
-<section className="flex flex-1 flex-row gap-5 min-h-0">
+<section className="grid flex-1 grid-cols-2 gap-5 min-h-0">
 
-<div className="w-1/2 bg-white rounded-2xl p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
+<div className="min-w-0 bg-white rounded-2xl p-5 flex flex-col min-h-0"> {/* CHANGED: added flex flex-col */}
   <div className="flex items-center gap-2 mb-5">
     <h2 className="text-ink text-lg font-medium">Client profitability</h2>
     <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>
@@ -71,7 +71,7 @@ const th = "sticky top-0 z-10 bg-white font-normal pb-3 text-left shadow-[inset_
 </div>
 
 
-<div className="flex-1 w-1/2 min-h-0 flex flex-col gap-5">
+<div className="min-w-0 min-h-0 flex flex-col gap-5">
 
 <BudgetBurn budgetBurn={budgetBurn} />
 

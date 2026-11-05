@@ -13,7 +13,8 @@ export default function PeriodSelect() {
   const months = useSearchParams().get("months") ?? "3";
 
   return (
-    <div className="inline-flex items-center gap-0.5 rounded-lg bg-white p-1">
+    // Toggle style: grey track, the active option is a white box
+    <div className="inline-flex items-center gap-0.5 rounded-lg bg-gray-200 p-0.5">
       {options.map((option) => (
         <button
           key={option.value}
@@ -22,10 +23,10 @@ export default function PeriodSelect() {
           aria-label={option.fullLabel}
           title={option.fullLabel}
           onClick={() => router.push(`?months=${option.value}`)}
-          className={`cursor-pointer rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
+          className={`cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-colors ${
             months === option.value
-              ? "bg-black text-white"
-              : "text-ink hover:bg-gray-100"
+              ? "bg-white text-ink shadow-sm"
+              : "text-gray-500 hover:text-ink"
           }`}
         >
           {option.label}
