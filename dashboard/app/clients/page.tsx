@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function ServicesPage({ searchParams }: { searchParams: Promise<{ client?: string; months?: string }> }) {
   // ?client=<id> opens the client pop-up; ?months= is the selected period (3, 6, 12 or 24)
   const { client, months = "3" } = await searchParams;
-  const [clientListTable, invoiceTable, revenueByTier, clientDetail, revenueByIndustry] = await Promise.all([getClientListTable(), getInvoiceTable(), getRevenueByTier(Number(months)), client ? getClientDetail(Number(client)) : null, getRevenueIndustry()]);
+  const [clientListTable, invoiceTable, revenueByTier, clientDetail, revenueByIndustry] = await Promise.all([getClientListTable(), getInvoiceTable(), getRevenueByTier(Number(months)), client ? getClientDetail(Number(client)) : null, getRevenueIndustry(Number(months))]);
 
   const tierColors: Record<string, string> = {
     "1": "#2563eb",
@@ -48,7 +48,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
          <div className="w-[46%] shrink-0 min-w-0 min-h-0 flex flex-col gap-3">
            <div className="flex flex-[1.35] min-h-0 gap-3">
             <RevenueByTierTable rows={revenueByTier} months={Number(months)} tierColors={tierColors}/>
-            <RevenueByIndustryCard rows={revenueByIndustry} industryColors={industryColors}/>
+            <RevenueByIndustryCard rows={revenueByIndustry}  months={Number(months)} industryColors={industryColors}/>
           </div>
           <PendingInvoiceTable rows={invoiceTable}/>
          

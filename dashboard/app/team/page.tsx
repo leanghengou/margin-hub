@@ -14,14 +14,18 @@ import PeriodSelect from "@/components/PeriodSelect";
 export const dynamic = "force-dynamic";
 
 export default async function Team({ searchParams }: { searchParams: any }) {
-  const { months } = await searchParams;
+  const { months, year } = await searchParams;
   const period = Number(months) || 3;
+  // Heatmap year: ?year= or this year; the toggle offers last year and this year
+  const thisYear = new Date().getFullYear();
+  const heatmapYear = Number(year) || thisYear;
+  const years = [thisYear - 1, thisYear];
 
   const [employeeUtilisation, teamEconomic, workerUtilisation, teamLoggedHour, teamLoggedMargin] =
     await Promise.all([
-      getEmployeeUtilisation(),
+      getEmployeeUtilisation(heatmapYear),
       getTeamEconomic(period),
-      getWorkerUtilisation(),
+      getWorkerUtilisation(period),
       getTeamLoggedHour(period),
       getTeamLoggedMargin(period),
     ]);
@@ -69,11 +73,11 @@ export default async function Team({ searchParams }: { searchParams: any }) {
         {/* Height follows the heatmap; the table scrolls inside */}
         <div className="relative w-[30%] shrink-0">
           <div className="absolute inset-0 flex flex-col">
-            <EmployeesTable rows={workerUtilisation} teamColors={teamColors} utilTone={utilTone} />
+            <EmployeesTable rows={workerUtilisation} months={period} teamColors={teamColors} utilTone={utilTone} />
           </div>
         </div>
 
-        <UtilisationHeatmap rows={employeeUtilisation} teamColors={teamColors} />
+        <UtilisationHeatmap rows={employeeUtilisation} teamColors={teamColors} year={heatmapYear} years={years} />
       </div>
 
     </div>

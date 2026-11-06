@@ -292,31 +292,24 @@ export async function getClientDetail(client : number) {
 }
 
 
-export async function getEmployeeUtilisation() {
+export async function getEmployeeUtilisation(year: number) {
   return sql`
-WITH bounds AS (
-    SELECT date_trunc('week', current_date)::date AS latest_week
-)
-
-SELECT
-    em.employee_name,
-    em.employee_id,
-	t.name as team,
-	t.id as team_id,
-    array_agg(em.utilisation ORDER BY em.week) AS weeks,
-    array_agg(to_char(em.week, 'Mon') ORDER BY em.week) AS months
-FROM
-    v_employee_utilisation em 
-	join employees e on e.id = em.employee_id
-	join teams t on t.id = e.team_id
-	cross join bounds work_month
-WHERE
-    em.week < work_month.latest_week
-    AND em.week >= date_trunc('year', work_month.latest_week)
-GROUP BY em.employee_id, em.employee_name, t.id
-ORDER BY em.employee_name
-;
-  `
+    SELECT
+      em.employee_name,
+      em.employee_id,
+      t.name AS team,
+      t.id   AS team_id,
+      array_agg(em.utilisation ORDER BY em.week)               AS weeks,
+      array_agg(to_char(em.week, 'Mon') ORDER BY em.week)      AS months,
+      array_agg(to_char(em.week, 'YYYY-MM-DD') ORDER BY em.week) AS week_dates  -- which week each value is for
+    FROM v_employee_utilisation em
+    JOIN employees e ON e.id = em.employee_id
+    JOIN teams t     ON t.id = e.team_id
+    WHERE extract(year FROM em.week) = ${year}                 -- only the chosen year
+      AND em.week < date_trunc('week', current_date)           -- never past today
+    GROUP BY em.employee_id, em.employee_name, t.id
+    ORDER BY em.employee_name
+  `;
 }
 
 export async function getTeamEconomic(customValue:number) {
@@ -342,17 +335,18 @@ ORDER BY rate DESC NULLS LAST;
 }
 
 
-export async function getWorkerUtilisation(){
+export async function getWorkerUtilisation(months: number){
   return sql`
 WITH bounds AS (
-SELECT MAX(week) AS latest_week -- ONE row: last week in the data
-FROM v_employee_utilisation
+SELECT
+  date_trunc('week', current_date)::date AS this_week, -- not complete yet, excluded
+  date_trunc('week', current_date - make_interval(months => ${months}))::date AS first_week
 )
 SELECT
 u.employee_id,
 u.employee_name,
 t.name AS team,
-r.hourly_cost AS current_rate, -- rate valid in the latest week
+r.hourly_cost AS current_rate, -- rate valid in the last complete week
 round(SUM(u.billable_hours) / COUNT(*), 1) AS hours_per_week,
 round(100 * SUM(u.billable_hours) / NULLIF(SUM(u.weekly_capacity), 0)) AS worker_utilisation
 FROM v_employee_utilisation u
@@ -361,10 +355,10 @@ JOIN teams t ON t.id = e.team_id
 CROSS JOIN bounds b
 LEFT JOIN employee_rates r
 ON r.employee_id = u.employee_id
-AND r.valid_from <= b.latest_week
-AND (r.valid_to IS NULL OR r.valid_to >= b.latest_week)
-WHERE u.week > b.latest_week - INTERVAL '4 weeks'
-AND u.week <= b.latest_week
+AND r.valid_from <= b.this_week - 7
+AND (r.valid_to IS NULL OR r.valid_to >= b.this_week - 7)
+WHERE u.week >= b.first_week
+AND u.week < b.this_week -- never past today
 GROUP BY u.employee_id, u.employee_name, t.name, r.hourly_cost
 ORDER BY worker_utilisation DESC
   `
@@ -669,7 +663,7 @@ group by c.tier
 ;
   `
 }
-export async function getRevenueIndustry() {
+export async function getRevenueIndustry(months:number) {
   return sql`
 select 
 c.industry,
@@ -679,6 +673,9 @@ sum(vc.profit) as gross_profit,
 round(100 * sum(vc.profit) / nullif(sum(vc.revenue), 0), 1)::float8 as margin_pct
 from v_client_month_pnl vc
 join clients c on c.id = vc.client_id
+where vc.work_month >= to_char(current_date - make_interval(months => ${months}), 'YYYY-MM')
+and vc.work_month < to_char(current_date, 'YYYY-MM')
+
 group by c.industry
 ;
   `

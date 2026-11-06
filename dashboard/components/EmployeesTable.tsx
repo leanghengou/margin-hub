@@ -9,16 +9,17 @@ const th = "sticky top-0 z-10 bg-white pb-3 text-left font-normal shadow-[inset_
 
 type Props = {
   rows: EmployeeRow[];
+  months: number; // selected period, shown in the pill
   teamColors: Record<string, string>; // set in team/page.tsx
   utilTone: (util: number) => string; // pill colour for a utilisation %, set in team/page.tsx
 };
 
-export default function EmployeesTable({ rows, teamColors, utilTone }: Props) {
+export default function EmployeesTable({ rows, months, teamColors, utilTone }: Props) {
   return (
     <section className="flex min-h-0 flex-1 flex-col rounded-2xl bg-white p-5">
       <div className="mb-5 flex items-center gap-2">
         <h2 className="text-ink text-lg font-medium">Employee table</h2>
-        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">Last 4 weeks</span>
+        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">

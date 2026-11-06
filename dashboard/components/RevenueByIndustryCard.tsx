@@ -12,6 +12,7 @@ type IndustryRow = Awaited<ReturnType<typeof getRevenueIndustry>>[number];
 type Props = {
   rows: IndustryRow[];
   industryColors: Record<string, string>; // set in clients/page.tsx
+  months: number
 };
 
 const GREY = "#cbd5e1"; // industry with no colour
@@ -42,7 +43,7 @@ const clientCountLabels = (counts: number[]): Plugin<"doughnut"> => ({
   },
 });
 
-export default function RevenueByIndustryCard({ rows, industryColors }: Props) {
+export default function RevenueByIndustryCard({ rows, industryColors, months }: Props) {
   // postgres.js numerics are strings, so convert; biggest revenue first
   const industries = rows
     .map((r) => ({
@@ -89,7 +90,7 @@ export default function RevenueByIndustryCard({ rows, industryColors }: Props) {
       <div className="flex items-center gap-2">
         <h2 className="text-ink text-lg font-medium">Revenue by industry</h2>
         {/* The query has no date filter, so it covers every month */}
-        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">All time</span>
+        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>
       </div>
 
       {/* Doughnut with the industry count in the middle */}
