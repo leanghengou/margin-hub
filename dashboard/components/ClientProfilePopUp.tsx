@@ -99,22 +99,22 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
               <table className="w-full text-[0.8rem] text-ink">
                 <thead>
                   <tr className={`border-b border-gray-200 text-left ${label}`}>
+                     <th className={`${cell} font-normal`}>Invoice ID</th>
                     <th className={`${cell} font-normal`}>Period</th>
                     <th className={`${cell} font-normal`}>Service</th>
                     <th className={`${cell} font-normal text-right`}>Revenue</th>
-                    <th className={`${cell} font-normal text-right`}>Margin</th>
+                 
                     <th className="py-2 font-normal text-right">Invoice</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
                     <tr key={`${r.month_label}-${r.service}`} className="border-b border-gray-100">
+                      <td className={cell}><span className="py-2.5 pr-4 text-gray-500">#{r.invoice_id}</span></td>
                       <td className={cell}>{r.month_label}</td>
                       <td className={cell}>{r.service}</td>
                       <td className={`${cell} text-right`}>{money(r.revenue)}</td>
-                      <td className={`${cell} text-right ${Number(r.margin_pct) < 0 ? "text-red-600" : ""}`}>
-                        {r.margin_pct == null ? "—" : `${r.margin_pct}%`}
-                      </td>
+                     
                       <td className="py-2 text-right">
                         <span
                           className={`rounded-md px-2 py-0.5 text-[0.7rem] font-medium ${

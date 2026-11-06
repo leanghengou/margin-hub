@@ -588,50 +588,74 @@ export async function getClientListTable (){
 
   return sql`
   
-  select 
-client,
-c.tier,
-c.industry,
-case when c.end_date is null then 'Active' else 'Churned' end as status,
-c.start_date as joined,
-case when c.end_date is null then '--' else c.end_date::text end as ended,
-sum(revenue) as lifetime_revenue,
-sum(revenue) -sum(labour_cost)  as lifetime_gp,
-ROUND(100 * (SUM(revenue) - SUM(labour_cost)) / NULLIF(SUM(revenue), 0), 1) AS margin_pct
+WITH revenue AS (
+      -- Step 1: total invoiced per client, up to today
+      SELECT client_id, SUM(amount) AS revenue
+      FROM invoices
+      WHERE invoice_date <= current_date
+      GROUP BY client_id
+    ),
+    labour AS (
+      -- Step 2: total labour cost per client, up to today
+      SELECT client_id, SUM(labour_cost) AS labour_cost
+      FROM v_entry_cost
+      WHERE work_date <= current_date
+      GROUP BY client_id
+    ),
+    totals AS (
+      -- Step 3: attach both totals to every client who has started (0 if none)
+      SELECT
+        c.id, c.name, c.tier, c.industry, c.start_date, c.end_date,
+        COALESCE(r.revenue, 0)     AS revenue,
+        COALESCE(l.labour_cost, 0) AS labour_cost
+      FROM clients c
+      LEFT JOIN revenue r ON r.client_id = c.id
+      LEFT JOIN labour  l ON l.client_id = c.id
+      WHERE c.start_date <= current_date
+    )
+    -- Step 4: work out status, profit and margin
+    SELECT
+      id   AS client_id,
+      name AS client,
+      tier,
+      industry,
+      CASE WHEN end_date < current_date THEN 'Churned' ELSE 'Active' END AS status,
+      start_date AS joined,
+      CASE WHEN end_date < current_date THEN end_date::text ELSE '--' END AS ended,
+      revenue::float8                 AS lifetime_revenue,
+      (revenue - labour_cost)::float8 AS lifetime_gp,
+      ROUND(100.0 * (revenue - labour_cost) / NULLIF(revenue, 0), 1)::float8 AS margin_pct
+    FROM totals
+    ORDER BY status, joined DESC, lifetime_revenue DESC;
 
-from v_client_month_pnl client_info
-join clients c on c.id = client_info.client_id
-
-group by client, c.id
-;
   `
 }
 
 
 export async function getInvoiceTable(){
   return sql`
-   select
-inv.id,
-c.name as client,
-s.name as service,
-to_char(inv.invoice_date, 'Mon DD, YYYY') as invoice_date,
-sum(amount) as amount,
-inv.is_paid,
-current_date - inv.invoice_date as days_since_invoice
-from 
-invoices inv
-join clients c on c.id = inv.client_id
-join services s on s.id = inv.service_id
-where is_paid = false and invoice_date < current_date
-group by c.name, s.name, inv.invoice_date, inv.is_paid, inv.id
+SELECT
+  inv.id                                     AS invoice_id,
+  c.id                                       AS client_id,
+  c.name                                     AS client_name,
+  s.name                                     AS service_name,
+  to_char(inv.invoice_date, 'Mon DD, YYYY')  AS invoice_label,
+  inv.amount::float8                         AS amount,
+  current_date - (inv.invoice_date + 14)     AS days_overdue   
+FROM invoices inv
+JOIN clients  c ON c.id = inv.client_id
+JOIN services s ON s.id = inv.service_id
+WHERE inv.is_paid = false
+  AND inv.invoice_date + 14 < current_date   
+ORDER BY days_overdue;                  
 ;
   `
 }
 
 
-export async function getRevenueByTier() {
+export async function getRevenueByTier(months:number) {
   return sql`
-  select 
+   select 
 c.tier,
 count(distinct vc.client) as clients,
 sum(vc.revenue) as revenue,
@@ -639,6 +663,8 @@ sum(vc.profit) as gross_profit,
 round(100 * sum(vc.profit) / nullif(sum(vc.revenue), 0), 1)::float8 as margin_pct
 from v_client_month_pnl vc
 join clients c on c.id = vc.client_id
+where vc.work_month >= to_char(current_date - make_interval(months => ${months}), 'YYYY-MM')
+and vc.work_month < to_char(current_date, 'YYYY-MM')
 group by c.tier
 ;
   `
