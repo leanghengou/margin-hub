@@ -157,25 +157,30 @@ ORDER BY work_month;
   `;
 }
 
+export type ServiceMixType = {
+service:string,
+revenue:number,
+cost:number,
+profit:number,
+work_month:string
+};
 
 
 
-
-export async function getServiceMix() {
-return sql`
-SELECT
-service,
-SUM(revenue) AS revenue,
-SUM(labour_cost) AS cost,
-SUM(profit) AS profit,
-to_char(current_date, 'YYYY') AS selected_year,
-to_char(current_date, 'FMMonth') AS selected_month
-FROM v_service_month_pnl
-WHERE work_month >= to_char(date_trunc('year', current_date), 'YYYY-MM')
-AND work_month <= to_char(current_date, 'YYYY-MM')
-GROUP BY service
-ORDER BY revenue DESC;
-`;
+export async function getServiceMix(months: number) {
+  return sql<ServiceMixType[]>`
+    SELECT
+      service,
+      SUM(revenue)    AS revenue,
+      SUM(labour_cost) AS cost,
+      SUM(profit)      AS profit,
+      work_month
+    FROM v_service_month_pnl
+    WHERE work_month >= to_char(current_date - make_interval(months => ${months}), 'YYYY-MM')
+      AND work_month <  to_char(current_date, 'YYYY-MM')
+    GROUP BY service, work_month
+    ORDER BY work_month, service
+  `;
 }
 
 
@@ -452,9 +457,31 @@ JOIN revenue r ON r.team_id = t.id
 ORDER BY margin_pct DESC;
 `}
 
+export type ServicesRevenueBoxes = {
+ service:string,
+ labour_cost:number,
+ monthly_revenue:number,
+ monthly_profit:number,
+ margin_pct:number,
+ work_month:string
+};
 
+export async function getServicesRevenueTable(months: number) {
+return sql<ServicesRevenueBoxes[]>`
+select 
+service,
+sum(labour_cost) as labour_cost,
+sum(revenue) as monthly_revenue,
+sum(profit) as monthly_profit,
+sum(ROUND(100 * (revenue - labour_cost) / NULLIF(revenue, 0), 1)) AS margin_pct,
+work_month
+from v_client_month_pnl
+WHERE work_month >= to_char(current_date - make_interval(months => ${months}), 'YYYY-MM')
+  AND work_month <  to_char(current_date, 'YYYY-MM')
+group by service, work_month;
+`}
 
-export async function getAeoServiceMonthly() {
+export async function getServicesWebsiteBox() {
 return sql`
 select 
 service,
@@ -464,12 +491,39 @@ sum(profit) as monthly_profit,
 sum(ROUND(100 * (revenue - labour_cost) / NULLIF(revenue, 0), 1)) AS margin_pct,
 work_month
 from v_client_month_pnl
-where work_month BETWEEN TO_CHAR(date_trunc('year',current_date), 'YYYY-MM') and TO_CHAR(current_date, 'YYYY-MM')
+where service = 'Web Development' and work_month < to_char(current_date, 'YYYY-MM')
 group by service, work_month;
 `}
 
 
+export async function getWebsiteProject(){
 
+  return sql`
+  select 
+projects.id as project_id,
+s.name,
+s.id as service_id,
+c.name as client_name,
+c.id as client_id,
+c.email as client_email,
+c.location as client_location,
+projects.pricing_model,
+projects.start_date,
+sum(v.labour_cost) as labour_cost,
+sum(v.revenue) as revenue,
+sum(v.profit) as profit
+from projects
+join services s on s.id = projects.service_id
+join clients c on c.id = projects.client_id
+join v_client_month_pnl v on v.client_id = c.id
+and v.service_id = s.id
+where s.name = 'Web Development'
+and projects.start_date < current_date
+and v.work_month < to_char(current_date, 'YYYY-MM')
+group by  c.name, projects.id, projects.start_date,s.id,c.id
+;
+  `
+}
 
 export async function getServiceLinePnl() {
   return sql`

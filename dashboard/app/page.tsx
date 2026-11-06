@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home({ searchParams }: any) {
   const { months =3, client } = await searchParams;
- const [kpis, clientStatus, BudgetBurn, ClientRowTables, agencyTrend, serviceMix, clientDetail, clientRetention] = await Promise.all([getKpis(Number(months)), getClientStatus(), getBudgetBurn(), getClientTables(Number(months)), getAgencyTrend(Number(months)), getServiceMix(), client ? getClientDetail(Number(client),) : null, getClientRetention()]);
+ const [kpis, clientStatus, BudgetBurn, ClientRowTables, agencyTrend, serviceMix, clientDetail, clientRetention] = await Promise.all([getKpis(Number(months)), getClientStatus(), getBudgetBurn(), getClientTables(Number(months)), getAgencyTrend(Number(months)), getServiceMix(months), client ? getClientDetail(Number(client),) : null, getClientRetention()]);
 
   return(
 <div className="flex h-full bg-[#3f3f3f]">
