@@ -19,8 +19,7 @@ export default function ServiceRanking({ rows, months, serviceColors }: Props) {
   if (!rows?.length) return null;
 
   const colorOf = (service: string) => serviceColors[service] ?? GREY;
-
-  // Add up each service's months (numerics are strings), biggest revenue first
+  
   const totals = new Map<string, number>();
   for (const r of rows) {
     const service = String(r.service);

@@ -6,22 +6,18 @@ import type { getRevenueIndustry } from "@/lib/queries";
 
 ChartJS.register(ArcElement, Tooltip);
 
-// Rows straight from the query: one row per industry, all time
 type IndustryRow = Awaited<ReturnType<typeof getRevenueIndustry>>[number];
 
 type Props = {
   rows: IndustryRow[];
-  industryColors: Record<string, string>; // set in clients/page.tsx
+  industryColors: Record<string, string>; 
   months: number
 };
 
 const GREY = "#cbd5e1"; // industry with no colour
 
-// 2700000 -> "$2.7M", 276000 -> "$276K"
 const compact = (v: number) =>
   Math.abs(v) >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${Math.round(v / 1000)}K`;
-
-// Writes each industry's client count on its segment (skipped when the segment is too thin to fit it)
 const clientCountLabels = (counts: number[]): Plugin<"doughnut"> => ({
   id: "clientCountLabels",
   afterDatasetsDraw(chart) {
@@ -44,7 +40,6 @@ const clientCountLabels = (counts: number[]): Plugin<"doughnut"> => ({
 });
 
 export default function RevenueByIndustryCard({ rows, industryColors, months }: Props) {
-  // postgres.js numerics are strings, so convert; biggest revenue first
   const industries = rows
     .map((r) => ({
       industry: String(r.industry),
@@ -73,7 +68,7 @@ export default function RevenueByIndustryCard({ rows, industryColors, months }: 
     maintainAspectRatio: false,
     cutout: "62%",
     plugins: {
-      legend: { display: false }, // the list below acts as the legend
+      legend: { display: false }, 
       tooltip: {
         callbacks: {
           label: (ctx) => {
@@ -89,11 +84,9 @@ export default function RevenueByIndustryCard({ rows, industryColors, months }: 
     <div className="flex min-h-0 min-w-0 flex-1 basis-0 flex-col rounded-2xl bg-white p-5">
       <div className="flex items-center gap-2">
         <h2 className="text-ink text-lg font-medium">Revenue by industry</h2>
-        {/* The query has no date filter, so it covers every month */}
         <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{months} months</span>
       </div>
 
-      {/* Doughnut with the industry count in the middle */}
       <div className="relative mt-3 h-44 shrink-0">
         {industries.length > 0 ? (
           <>
@@ -108,7 +101,6 @@ export default function RevenueByIndustryCard({ rows, industryColors, months }: 
         )}
       </div>
 
-      {/* List: same order and colours as the chart; scrolls inside the card */}
       <div className="mt-4 grid shrink-0 grid-cols-[1fr_auto_auto] gap-x-4 pb-2 text-xs text-gray-500 shadow-[inset_0_-1px_0_#d1d5db]">
         <span>Industry</span>
         <span className="w-16 text-right">Revenue</span>

@@ -64,8 +64,8 @@ export default function ServiceWebsiteCard({ rows }: { rows: ProjectRow[] }) {
 
       {/* One row per project; scrolls inside the card when there are many */}
       <ul className="min-h-0 flex-1 overflow-auto">
-        {projects.map((p) => (
-          <li key={p.id} className="py-2.5">
+        {projects.map((p, index) => (
+          <li key={index} className="py-2.5">
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-ink" title={p.client}>{p.client}</span>
