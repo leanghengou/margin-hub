@@ -63,14 +63,12 @@ export default async function Team({ searchParams }: { searchParams: any }) {
         </div>
       </div>
 
-      {/* Row 2: charts; only as tall as its content */}
       <div className="flex min-h-[340px] shrink-0 gap-3">
         <TeamMarginCard months={period} economics={teamEconomic} margin={teamLoggedMargin} teamColors={teamColors} />
         <TeamHoursChart months={period} rows={teamLoggedHour} teamColors={teamColors} />
       </div>
-      {/* Row 1: over capacity + heatmap; takes the height Row 2 doesn't need */}
+
       <div className="flex flex-1 min-h-0 gap-3">
-        {/* Height follows the heatmap; the table scrolls inside */}
         <div className="relative w-[30%] shrink-0">
           <div className="absolute inset-0 flex flex-col">
             <EmployeesTable rows={workerUtilisation} months={period} teamColors={teamColors} utilTone={utilTone} />

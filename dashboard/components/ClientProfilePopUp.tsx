@@ -76,11 +76,11 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
                 <span className={`${pill} ${grey}`}>{info?.tier}</span>
               </div>
               <div>
-                <p className={detailTitle}>Join</p>
+                <p className={detailTitle}>Joined</p>
                 <span className={`${pill} ${grey}`}>{info?.joined}</span>
               </div>
               <div>
-                <p className={detailTitle}>End</p>
+                <p className={detailTitle}>{info?.ended === "Active" ? "Status" : "Ended"}</p>
                 <span className={`${pill} ${info?.ended === "Active" ? "bg-green-100 text-green-700" : grey}`}>
                   {info?.ended}
                 </span>
@@ -102,9 +102,9 @@ export default function ClientProfilePopup({ open, data }: { open: boolean; data
                      <th className={`${cell} font-normal`}>Invoice ID</th>
                     <th className={`${cell} font-normal`}>Period</th>
                     <th className={`${cell} font-normal`}>Service</th>
-                    <th className={`${cell} font-normal text-right`}>Revenue</th>
+                    <th className={`${cell} font-normal text-right`}>Amount</th>
                  
-                    <th className="py-2 font-normal text-right">Invoice</th>
+                    <th className="py-2 font-normal text-right">Invoice status</th>
                   </tr>
                 </thead>
                 <tbody>

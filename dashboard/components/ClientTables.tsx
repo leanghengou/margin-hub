@@ -75,11 +75,6 @@ const th = "sticky top-0 z-10 bg-white font-normal pb-3 text-left shadow-[inset_
 
 <BudgetBurn budgetBurn={budgetBurn} />
 
-{/* 
-<div className="flex shrink-0 gap-5">
-<AgencyTrendChart months={months} rows={agencyTrend}/>
-<ServiceBubble rows={serviceMix}/>
-</div> */}
 
 
 

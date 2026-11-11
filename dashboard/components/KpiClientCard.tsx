@@ -18,9 +18,9 @@ export default function KpiClientCard({ total, active, churned }: Props) {
   return (
     <div className="flex-1 overflow-hidden bg-white p-5 rounded-2xl">
       {/* All clients ever, not the selected period */}
-      <h5 className="text-ink text-[0.8rem] font-medium">Clients · All time</h5>
+      <h5 className="text-ink text-[0.8rem] font-medium">Clients · Active</h5>
       <div className="flex items-center gap-2">
-        <h3 className="text-ink text-[2rem] font-medium">{total}</h3>
+        <h3 className="text-ink text-[2rem] font-medium">{active}</h3>
         <span className={`${badge} bg-gray-100 text-gray-600`}>{retained}% retained</span>
       </div>
 
@@ -31,7 +31,7 @@ export default function KpiClientCard({ total, active, churned }: Props) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
-        <Segment label="Active" value={active} share={share(active)} color={ACTIVE} tone={green} />
+        <Segment label="All time" value={total} share={share(active)} color={ACTIVE} tone={green} />
         <Segment label="Churned" value={churned} share={share(churned)} color={CHURNED} tone={red} />
       </div>
     </div>

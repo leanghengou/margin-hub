@@ -94,9 +94,18 @@ export type BurnRow = {
 
 export async function getBudgetBurn() {
   return sql<BurnRow[]>`
-    SELECT client, service, budgeted_hour, hours_spent_by_team
-    FROM v_budget_burn
-    WHERE budget_month = date_trunc('month', current_date)::date
+  SELECT b.client,
+b.service,
+b.budgeted_hour,
+COALESCE(SUM(te.hour_spent), 0) AS hours_spent_by_team
+FROM v_budget_burn b
+LEFT JOIN time_entries te
+ON te.client_id = b.client_id
+AND te.service_id = b.service_id
+AND te.work_date >= b.budget_month
+AND te.work_date <= current_date
+WHERE b.budget_month = date_trunc('month', current_date)::date
+GROUP BY b.budget_id, b.client, b.service, b.budgeted_hour
   `;
 }
 
@@ -128,7 +137,7 @@ group by table_client.client, table_client.client_id
 select
 totals_table.*
 from totals_table
-order by gross_profit desc
+order by gross_profit 
 ;
   `;
 }
@@ -246,7 +255,16 @@ export async function getClientDetail(client : number) {
       c.location,
       c.industry,
       to_char(c.start_date, 'Mon YYYY') AS joined,
-      COALESCE(to_char(c.end_date, 'Mon YYYY'), 'Active') AS ended,
+
+   CASE 
+        WHEN c.end_date <= CURRENT_DATE THEN TO_CHAR(c.end_date, 'Mon YYYY')
+        ELSE 'Active'
+    END AS ended,
+
+
+
+
+
    to_char(to_date(m.work_month, 'YYYY-MM'), 'Mon YYYY') AS month_label,
       s.name AS service,
       COALESCE(i.invoiced, 0)::float8     AS revenue,
@@ -286,6 +304,7 @@ export async function getClientDetail(client : number) {
     -- Drop empty combinations, e.g. a one-off service in months it wasn't sold
    WHERE i.invoice_id IS NOT NULL
 	   AND i.invoice_date < current_date
+     AND c.start_date  < current_date
 
     ORDER BY m.work_month desc;
   `
@@ -316,7 +335,8 @@ export async function getTeamEconomic(customValue:number) {
 
   return sql`
   WITH bounds AS (
-  SELECT date_trunc('month', MAX(work_date))::date AS partial_month
+SELECT date_trunc('month', MAX(work_date))::date AS partial_month
+  
   FROM time_entries
 )
 SELECT
@@ -326,8 +346,8 @@ SELECT
   SUM(t.hours_spent)   AS hours,
   ROUND(SUM(t.total_revenue) / NULLIF(SUM(t.hours_spent), 0)) AS rate
 FROM v_team_performance t, bounds b
-WHERE to_date(left(t.month, 7), 'YYYY-MM') <  b.partial_month
-  AND to_date(left(t.month, 7), 'YYYY-MM') >= b.partial_month - make_interval(months => ${customValue})
+WHERE to_date(t.month, 'YYYY-MM') <  b.partial_month
+  AND to_date(t.month, 'YYYY-MM') >= b.partial_month - make_interval(months => ${customValue})
 GROUP BY t.team_id, t.team
 ORDER BY rate DESC NULLS LAST;
   `
@@ -435,7 +455,7 @@ FROM invoices i
 JOIN services s ON s.id = i.service_id
 CROSS JOIN bounds b
 WHERE i.invoice_date >= b.latest_month - make_interval(months => ${months})
-AND i.invoice_date< b.latest_month
+AND i.invoice_date < b.latest_month
 GROUP BY s.team_id
 )
 SELECT

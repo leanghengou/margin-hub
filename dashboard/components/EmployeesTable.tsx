@@ -28,8 +28,8 @@ export default function EmployeesTable({ rows, months, teamColors, utilTone }: P
             <tr className="text-sm text-gray-500">
               <th className={`${th} pr-4`}>Employee</th>
               <th className={`${th} pr-4`}>Team</th>
-              <th className={`${th} pr-4`}>Hourly rate</th>
-              <th className={th}>Weekly/Work</th>
+              <th className={`${th} pr-4`}>Cost rate</th>
+              <th className={th}>Utilisation</th>
             </tr>
           </thead>
           <tbody>

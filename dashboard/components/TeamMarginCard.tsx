@@ -59,7 +59,7 @@ export default function TeamMarginCard({ months, economics, margin, teamColors }
         {/* Left: one bar per team = revenue, split into labour cost + gross profit */}
         {/* justify-between spreads the blocks when the card is taller than they need */}
         <div className="flex min-h-0 flex-col justify-between gap-6 overflow-auto">
-          {margin.map((r) => {
+          {economics.map((r) => {
             const labour = Number(r.labour_cost);
             const profit = Number(r.gross_profit);
             const pct = Number(r.margin_pct);
@@ -71,7 +71,7 @@ export default function TeamMarginCard({ months, economics, margin, teamColors }
                   <h3 className="text-ink text-xl font-medium">
                     {r.team} {compact(Number(r.revenue))}
                   </h3>
-                  <span className={`${badge} ${tone}`}>{pct}% margin</span>
+             
                 </div>
                 {/* Segment widths follow each part's share; a loss leaves only labour */}
                 <div className="mt-3 flex h-1.5 gap-1">
