@@ -59,8 +59,9 @@ export async function getClientRetention() {
   const [row]= await sql`
   SELECT
   COUNT(*) AS total,
-  COUNT(*) FILTER (WHERE end_date IS NULL)     AS active,
-  COUNT(*) FILTER (WHERE end_date IS NOT NULL) AS churned
+  -- an end date still in the future means the client is active today
+  COUNT(*) FILTER (WHERE end_date IS NULL OR end_date > current_date) AS active,
+  COUNT(*) FILTER (WHERE end_date <= current_date)                    AS churned
 FROM clients
 WHERE start_date < current_date 
 ;
@@ -74,14 +75,17 @@ export async function getClientStatus() {
     WITH client_profit AS (
       SELECT client_id, SUM(profit) AS profit
       FROM v_client_month_pnl
+      WHERE work_month < to_char(current_date, 'YYYY-MM') -- finished months only, nothing after today
       GROUP BY client_id
     )
     SELECT
-      COUNT(*) FILTER (WHERE c.end_date IS NULL)     AS active_clients,
-      COUNT(*) FILTER (WHERE c.end_date IS NOT NULL) AS churned_clients,
+      -- an end date still in the future means the client is active today
+      COUNT(*) FILTER (WHERE c.end_date IS NULL OR c.end_date > current_date) AS active_clients,
+      COUNT(*) FILTER (WHERE c.end_date <= current_date)                      AS churned_clients,
       COUNT(*) FILTER (WHERE cp.profit < 0)          AS losing_money
     FROM clients c
     LEFT JOIN client_profit cp ON cp.client_id = c.id
+    WHERE c.start_date < current_date -- skip clients that haven't started yet
   `;
   return row;
 }
@@ -95,6 +99,7 @@ export type BurnRow = {
 export async function getBudgetBurn() {
   return sql<BurnRow[]>`
   SELECT b.client,
+  b.client_id,
 b.service,
 b.budgeted_hour,
 COALESCE(SUM(te.hour_spent), 0) AS hours_spent_by_team
@@ -105,7 +110,7 @@ AND te.service_id = b.service_id
 AND te.work_date >= b.budget_month
 AND te.work_date <= current_date
 WHERE b.budget_month = date_trunc('month', current_date)::date
-GROUP BY b.budget_id, b.client, b.service, b.budgeted_hour
+GROUP BY b.budget_id, b.client,b.client_id, b.service, b.budgeted_hour
   `;
 }
 
@@ -334,21 +339,38 @@ export async function getEmployeeUtilisation(year: number) {
 export async function getTeamEconomic(customValue:number) {
 
   return sql`
-  WITH bounds AS (
-SELECT date_trunc('month', MAX(work_date))::date AS partial_month
-  
-  FROM time_entries
+WITH bounds AS (
+  SELECT
+    date_trunc('month', current_date)::date AS this_month, -- current month excluded (not finished)
+    (date_trunc('month', current_date) - make_interval(months => ${customValue}))::date AS first_month
+),
+revenue AS ( -- all invoices, by the service's team (CRO -> Website)
+  SELECT s.team_id, SUM(i.amount) AS revenue
+  FROM invoices i
+  JOIN services s ON s.id = i.service_id
+  CROSS JOIN bounds b
+  WHERE i.invoice_date >= b.first_month AND i.invoice_date < b.this_month
+  GROUP BY s.team_id
+),
+hours AS ( -- hours by the employee's team, same as v_team_performance
+  SELECT e.team_id, SUM(c.hour_spent) AS hours
+  FROM v_entry_cost c
+  JOIN employees e ON e.id = c.employee_id
+  CROSS JOIN bounds b
+  WHERE c.work_date >= b.first_month AND c.work_date < b.this_month
+  GROUP BY e.team_id
 )
 SELECT
-  t.team_id,
-  t.team,
-  SUM(t.total_revenue) AS revenue,
-  SUM(t.hours_spent)   AS hours,
-  ROUND(SUM(t.total_revenue) / NULLIF(SUM(t.hours_spent), 0)) AS rate
-FROM v_team_performance t, bounds b
-WHERE to_date(t.month, 'YYYY-MM') <  b.partial_month
-  AND to_date(t.month, 'YYYY-MM') >= b.partial_month - make_interval(months => ${customValue})
-GROUP BY t.team_id, t.team
+  t.id AS team_id,
+  t.name AS team,
+  COALESCE(r.revenue, 0) AS revenue,
+  COALESCE(h.hours, 0)   AS hours,
+  ROUND(r.revenue / NULLIF(h.hours, 0)) AS rate
+FROM teams t
+LEFT JOIN revenue r ON r.team_id = t.id
+LEFT JOIN hours h ON h.team_id = t.id
+WHERE t.name NOT LIKE 'Account Management%'
+  AND (r.revenue IS NOT NULL OR h.hours IS NOT NULL)
 ORDER BY rate DESC NULLS LAST;
   `
   
@@ -435,8 +457,9 @@ export type MarginRow = {
 export async function getTeamLoggedMargin(months: number) {
 return sql<MarginRow[]>`
 WITH bounds AS (
-SELECT date_trunc('month', MAX(work_date))::date AS latest_month
-FROM v_entry_cost
+SELECT
+  date_trunc('month', current_date)::date AS this_month, -- current month excluded (not finished)
+  (date_trunc('month', current_date) - make_interval(months => ${months}))::date AS first_month
 ),
 cost AS (
 SELECT s.team_id,
@@ -445,8 +468,8 @@ SUM(c.hour_spent) AS hours
 FROM v_entry_cost c
 JOIN services s ON s.id = c.service_id
 CROSS JOIN bounds b
-WHERE c.work_date >= b.latest_month - make_interval(months => ${months})
-AND c.work_date < b.latest_month
+WHERE c.work_date >= b.first_month
+AND c.work_date < b.this_month
 GROUP BY s.team_id
 ),
 revenue AS (
@@ -454,8 +477,8 @@ SELECT s.team_id, SUM(i.amount) AS revenue
 FROM invoices i
 JOIN services s ON s.id = i.service_id
 CROSS JOIN bounds b
-WHERE i.invoice_date >= b.latest_month - make_interval(months => ${months})
-AND i.invoice_date < b.latest_month
+WHERE i.invoice_date >= b.first_month
+AND i.invoice_date < b.this_month
 GROUP BY s.team_id
 )
 SELECT

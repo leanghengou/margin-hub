@@ -100,9 +100,14 @@ export default function RevenueByIndustryCard({ rows, industryColors, months }: 
           <p className="text-sm text-gray-500">No data.</p>
         )}
       </div>
+      {/* Explains the white numbers on the slices */}
+      {industries.length > 0 && (
+        <p className="mt-2 shrink-0 text-center text-xs text-gray-500">Slice size = revenue · number = clients</p>
+      )}
 
-      <div className="mt-4 grid shrink-0 grid-cols-[1fr_auto_auto] gap-x-4 pb-2 text-xs text-gray-500 shadow-[inset_0_-1px_0_#d1d5db]">
+      <div className="mt-4 grid shrink-0 grid-cols-[1fr_auto_auto_auto] gap-x-4 pb-2 text-xs text-gray-500 shadow-[inset_0_-1px_0_#d1d5db]">
         <span>Industry</span>
+        <span className="w-12 text-right">Clients</span>
         <span className="w-16 text-right">Revenue</span>
         <span className="w-16 text-right">Profit</span>
       </div>
@@ -111,12 +116,14 @@ export default function RevenueByIndustryCard({ rows, industryColors, months }: 
           {industries.map((i) => (
             <li
               key={i.industry}
-              className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b border-gray-100 py-2 text-sm last:border-b-0"
+              className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-4 border-b border-gray-100 py-2 text-sm last:border-b-0"
             >
               <span className="flex min-w-0 items-center gap-2 text-ink">
                 <span className="size-3 shrink-0 rounded-full" style={{ background: colorOf(i.industry) }} />
                 <span className="truncate">{i.industry}</span>
               </span>
+              {/* Same number as on the donut slice */}
+              <span className="w-12 text-right text-ink">{i.clients}</span>
               <span className="w-16 text-right font-medium text-ink">{compact(i.revenue)}</span>
               <span className={`w-16 text-right font-medium ${i.profit < 0 ? "text-red-600" : "text-ink"}`}>
                 {compact(i.profit)}

@@ -13,12 +13,6 @@ type Props = {
 const dot = "inline-block size-2.5 shrink-0 rounded-full";
 const GREY = "#cbd5e1"; // team with no colour
 
-// Badge styles copied from KpiCards / KpiClientCard
-const badge = "shrink-0 whitespace-nowrap rounded-[3px] px-2 py-1 text-[0.65rem] leading-tight font-medium";
-const green = "bg-[#E3F5D8] text-[#3F7F1F]";
-const amber = "bg-amber-100 text-amber-700";
-const red = "bg-[#FBE0E0] text-[#C0392B]";
-
 const LABOUR = "#5ccfc4";
 const PROFIT = "#f9c66b";
 
@@ -56,14 +50,12 @@ export default function TeamMarginCard({ months, economics, margin, teamColors }
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-8">
-        {/* Left: one bar per team = revenue, split into labour cost + gross profit */}
+        {/* Left: one bar per team = revenue, split into labour cost + gross profit (getTeamLoggedMargin) */}
         {/* justify-between spreads the blocks when the card is taller than they need */}
         <div className="flex min-h-0 flex-col justify-between gap-6 overflow-auto">
-          {economics.map((r) => {
+          {margin.map((r) => {
             const labour = Number(r.labour_cost);
             const profit = Number(r.gross_profit);
-            const pct = Number(r.margin_pct);
-            const tone = pct < 0 ? red : pct < 30 ? amber : green;
             return (
               <div key={r.team}>
                 <div className="flex items-center gap-2">
@@ -71,7 +63,6 @@ export default function TeamMarginCard({ months, economics, margin, teamColors }
                   <h3 className="text-ink text-xl font-medium">
                     {r.team} {compact(Number(r.revenue))}
                   </h3>
-             
                 </div>
                 {/* Segment widths follow each part's share; a loss leaves only labour */}
                 <div className="mt-3 flex h-1.5 gap-1">

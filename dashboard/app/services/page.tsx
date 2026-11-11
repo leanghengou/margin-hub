@@ -1,4 +1,5 @@
-import { getServicesRevenueTable , getBudgetBurn, getServiceMix, getWebsiteProject} from "@/lib/queries";
+import { getServicesRevenueTable , getBudgetBurn, getServiceMix, getWebsiteProject, getClientDetail} from "@/lib/queries";
+import ClientProfilePopup from "@/components/ClientProfilePopUp";
 import ServiceWebsiteCard from "@/components/ServiceWebsiteCard";
 import ServiceTablesRevenue from "@/components/ServiceTablesRevenue";
 import BudgetBurn from "@/components/BudgetBurn";
@@ -8,8 +9,9 @@ import PeriodSelect from "@/components/PeriodSelect";
 export const dynamic = "force-dynamic";
    
 export default async function ServicesPage({searchParams}:any) {
-   const { months =3 } = await searchParams;
-  const [servicesRevenueTable, budgetBurn, serviceMix, websiteProjects] = await Promise.all([getServicesRevenueTable(Number(months)), getBudgetBurn(), getServiceMix(Number(months)), getWebsiteProject()]);
+   // ?client=<id> opens the client pop-up (clicked from Budget burn), same as the Clients page
+   const { months =3, client } = await searchParams;
+  const [servicesRevenueTable, budgetBurn, serviceMix, websiteProjects, clientDetail] = await Promise.all([getServicesRevenueTable(Number(months)), getBudgetBurn(), getServiceMix(Number(months)), getWebsiteProject(), client ? getClientDetail(Number(client)) : null]);
 
   const serviceColors: Record<string, string> = {
     "SEO": "#c084fc",
@@ -25,6 +27,7 @@ export default async function ServicesPage({searchParams}:any) {
         <h2 className="text-ink text-2xl font-medium">Services overview</h2>
         <PeriodSelect />
       </div>
+      <ClientProfilePopup data={clientDetail} open={Boolean(client)} />
       <ServiceTablesRevenue rows={servicesRevenueTable} months={Number(months)} />
       <div className="grid flex-1 min-h-0 grid-cols-4 gap-3">
 

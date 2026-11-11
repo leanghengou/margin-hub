@@ -1,6 +1,7 @@
 'use client';
 
 import type { getServiceMix } from '@/lib/queries';
+import MissingServiceTag from './MissingServiceTag';
 
 // Rows straight from the query: one row per service per month
 type MixRow = Awaited<ReturnType<typeof getServiceMix>>[number];
@@ -12,6 +13,11 @@ type Props = {
 };
 
 const GREY = '#cbd5e1'; // service with no colour
+
+// Why a service can have no revenue in a period; others get the default reason below
+const NOTES: Record<string, string> = {
+  'Web Development': 'One-time projects, none billed in this period',
+};
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' });
 
@@ -31,6 +37,9 @@ export default function ServiceRanking({ rows, months, serviceColors }: Props) {
 
   const total = items.reduce((sum, it) => sum + it.revenue, 0);
   const share = (v: number) => (total ? Math.round((v / total) * 100) : 0);
+
+  // Services we know about (serviceColors) with no revenue in this period
+  const missing = Object.keys(serviceColors).filter((service) => !totals.has(service));
 
   return (
     <div className="flex min-w-0 flex-1 flex-col rounded-2xl bg-white p-5">
@@ -62,6 +71,14 @@ export default function ServiceRanking({ rows, months, serviceColors }: Props) {
             </div>
             <div className="text-lg text-ink tabular-nums">{money.format(it.revenue)}</div>
           </li>
+        ))}
+        {/* Not in the bar: no revenue this period */}
+        {missing.map((service) => (
+          <MissingServiceTag
+            key={service}
+            service={service}
+            reason={NOTES[service] ?? `No invoices in the last ${months} months`}
+          />
         ))}
       </ul>
     </div>

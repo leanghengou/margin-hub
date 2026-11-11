@@ -1,5 +1,8 @@
+import Link from "next/link";
+
 type BurnRow = {
   client: string;
+  client_id?: string | number; // from getBudgetBurn; opens the client pop-up
   service: string;
   budgeted_hour: string | number;
   hours_spent_by_team: string | number;
@@ -20,6 +23,7 @@ export default function BudgetBurn({ budgetBurn }: { budgetBurn: BurnRow[] }) {
       const used = Number(item.hours_spent_by_team);
       return {
         client: item.client,
+        clientId: item.client_id,
         service: item.service,
         left: budget - used,
         burn: budget ? (used / budget) * 100 : 0,
@@ -27,15 +31,20 @@ export default function BudgetBurn({ budgetBurn }: { budgetBurn: BurnRow[] }) {
     })
     .sort((a, b) => b.burn - a.burn);
 
-  const month = new Date().toLocaleString("en-US", { month: "short" });
+  // Hours count from the 1st of this month up to today: "Nov 1 – 11, 2026"
+  const today = new Date();
+  const month = today.toLocaleString("en-US", { month: "short" });
+  const range = `${month} 1 – ${today.getDate()}, ${today.getFullYear()}`;
 
   return (
     <section className="rounded-2xl bg-white p-5 flex flex-col min-h-0 flex-1">
-      <div className="mb-5 flex items-center gap-2">
-        <h2 className="text-ink text-lg font-medium">Budget burn</h2>
-        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
-          {month} · {rows.length} projects
-        </span>
+      <div className="mb-5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-ink text-lg font-medium">Budget burn</h2>
+          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{rows.length} projects</span>
+        </div>
+        {/* Period pill top right, like the other cards */}
+        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{range}</span>
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto">
@@ -53,11 +62,20 @@ export default function BudgetBurn({ budgetBurn }: { budgetBurn: BurnRow[] }) {
             {rows.map((r) => {
               const color = r.burn > 100 ? RED : r.burn >= FLAG ? YELLOW : GREEN;
               return (
-                <tr key={`${r.client}-${r.service}`} className="border-b border-gray-100 last:border-0">
+                <tr
+                  key={`${r.client}-${r.service}`}
+                  className="relative cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                >
                   <td className="py-2.5 pr-4">
-                    <div className="w-48 truncate text-gray-900" title={r.client}>
+                    {/* The link stretches over the whole row, so clicking anywhere opens the client pop-up (same as ClientListTable) */}
+                    <Link
+                      href={`?client=${r.clientId}`}
+                      scroll={false}
+                      className="block w-48 truncate text-gray-900 after:absolute after:inset-0"
+                      title={r.client}
+                    >
                       {r.client}
-                    </div>
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap py-2.5 pr-4 text-gray-900">{r.service}</td>
                   <td
