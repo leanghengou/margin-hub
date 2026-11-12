@@ -9,7 +9,6 @@ import PeriodSelect from "@/components/PeriodSelect";
 export const dynamic = "force-dynamic";
 
 export default async function ServicesPage({ searchParams }: { searchParams: Promise<{ client?: string; months?: string }> }) {
-  // ?client=<id> opens the client pop-up; ?months= is the selected period (3, 6, 12 or 24)
   const { client, months = "3" } = await searchParams;
   const [clientListTable, invoiceTable, revenueByTier, clientDetail, revenueByIndustry] = await Promise.all([getClientListTable(), getInvoiceTable(), getRevenueByTier(Number(months)), client ? getClientDetail(Number(client)) : null, getRevenueIndustry(Number(months))]);
 
@@ -19,7 +18,6 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
     "3": "#fb923c",
   };
 
-  // Industry colours for the Revenue by industry card (keys match the industry names in the database)
   const industryColors: Record<string, string> = {
     "E-commerce": "#c084fc",
     Education: "#2563eb",
