@@ -57,7 +57,7 @@ Here’s how each number is worked out:
 
 To answer those questions, I built ten tables in a star schema. `time_entries` sits in the middle, and the other tables describe the people, clients and services it points to.
 
-<img width="1743" height="1183" alt="Group 39" src="https://github.com/user-attachments/assets/043827a7-85ec-406c-bb31-d889eda28c16" />
+<img width="1861" height="1304" alt="Group 40" src="https://github.com/user-attachments/assets/0feefd1f-90ad-47d4-9856-aa46de12cfa8" />
 
 | Table | What’s in it | Used for |
 | --- | --- | --- |
