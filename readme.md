@@ -132,8 +132,7 @@ Clients are grouped by size. **Tier 1** is large companies, **Tier 2** is medium
 
 Revenue and profit for each of the nine industries the agency works with. It shows where the agency is strongest and which industries are worth going after.
 
-<img width="1757" height="926" alt="image 8" src="https://github.com/user-attachments/assets/04664965-d0eb-456f-8b3b-38e15c6bb1eb" />
-
+<img width="1757" height="926" alt="image 8" src="https://github.com/user-attachments/assets/ebf3a1bf-4089-4b34-a676-9cff995185a0" />
 
 ### Client list
 
