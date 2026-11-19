@@ -58,52 +58,94 @@ Here’s how each number is worked out:
 To answer those questions, I built ten tables in a star schema. `time_entries` sits in the middle, and the other tables describe the people, clients and services it points to.
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
 erDiagram
-    teams ||--o{ employees : employs
-    teams ||--o{ services : delivers
-    employees ||--o{ employee_rates : "rate history"
-    employees ||--o{ time_entries : logs
-    clients ||--o{ time_entries : "worked for"
-    services ||--o{ time_entries : "type of work"
-    projects ||--o{ time_entries : "part of"
-    clients ||--o{ projects : buys
-    services ||--o{ projects : sells
-    clients ||--o{ client_budgets : "monthly hours"
-    clients ||--o{ invoices : "billed"
-    services ||--o{ invoices : "billed for"
-    dim_date ||--o{ time_entries : "work_date"
-
-    time_entries {
-        int id PK
-        int employee_id FK
-        int client_id FK
-        int service_id FK
-        int project_id FK
-        date work_date
-        numeric hours
-        boolean billable
-    }
     employee_rates {
-        int id PK
-        int employee_id FK
-        numeric hourly_cost
+        number id
+        number hourly_cost
+        number employee_id
         date valid_from
         date valid_to
     }
+    employees {
+        number id
+        string first_name
+        string last_name
+        number team_id
+        date created_at
+        number weekly_capacity
+    }
+    teams {
+        number id
+        string title
+    }
+    services {
+        number id
+        string name
+        number team_id
+        number bill_rate
+    }
+```
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
+erDiagram
+    time_entries {
+        number id
+        number employee_id
+        number client_id
+        number service_id
+        number project_id
+        number hour_spent
+        boolean billable
+        date work_date
+    }
     clients {
-        int id PK
-        text name
-        text industry
-        int tier
+        number id
+        string client_name
+        string industry
         date start_date
         date end_date
+        number tier
+        string location
+    }
+    projects {
+        number id
+        number budget
+        number service_id
+        number client_id
+        date start_date
+        date deadline
+        string pricing_model
+    }
+```
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
+erDiagram
+    client_budgets {
+        number id
+        number client_id
+        number service_id
+        date month
+        number budgeted_hour
+        number monthly_fee
     }
     invoices {
-        int id PK
-        int client_id FK
-        int service_id FK
-        date month
-        numeric amount
+        number id
+        number client_id
+        number service_id
+        date invoice_date
+        number amount
+        boolean is_paid
+        date paid_date
+    }
+    dim_date {
+        date date
+        number month
+        number quarter
+        number year
+        boolean is_workday
     }
 ```
 
