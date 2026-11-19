@@ -58,7 +58,7 @@ Here’s how each number is worked out:
 To answer those questions, I built ten tables in a star schema. `time_entries` sits in the middle, and the other tables describe the people, clients and services it points to.
 
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','rowOdd':'#373737','rowEven':'#373737','textColor':'#ffffff','nodeTextColor':'#ffffff','fontFamily':'monospace'}}}%%
 erDiagram
     employee_rates {
         number id
@@ -88,7 +88,7 @@ erDiagram
 ```
 
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','rowOdd':'#373737','rowEven':'#373737','textColor':'#ffffff','nodeTextColor':'#ffffff','fontFamily':'monospace'}}}%%
 erDiagram
     time_entries {
         number id
@@ -121,7 +121,7 @@ erDiagram
 ```
 
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','fontFamily':'monospace'}}}%%
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#373737','primaryTextColor':'#ffffff','primaryBorderColor':'#5e5e5e','lineColor':'#5e5e5e','tertiaryColor':'#373737','attributeBackgroundColorOdd':'#373737','attributeBackgroundColorEven':'#373737','rowOdd':'#373737','rowEven':'#373737','textColor':'#ffffff','nodeTextColor':'#ffffff','fontFamily':'monospace'}}}%%
 erDiagram
     client_budgets {
         number id
