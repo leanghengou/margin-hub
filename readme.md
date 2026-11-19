@@ -90,98 +90,6 @@ Each number is defined once, in a view, and the app just reads it. The views onl
 | `v_team_performance` | Revenue per hour, by team | Team |
 | `v_budget_burn` | Hours used this month against budget, flagged at 80% | Services |
 
-<!-- The two blocks below are sketches of the logic. Replace them with your real view code. -->
-
-**`v_entry_cost`: costing each hour at the right rate.** A range join finds the rate each person had on the day they did the work.
-
-```sql
-SELECT te.id,
-       te.client_id,
-       te.service_id,
-       te.work_date,
-       te.hours,
-       te.hours * er.hourly_cost AS labour_cost
-FROM time_entries te
-JOIN employee_rates er
-  ON er.employee_id = te.employee_id
- AND te.work_date >= er.valid_from
- AND (er.valid_to IS NULL OR te.work_date < er.valid_to)
-WHERE te.work_date <= current_date;
-```
-
-**`v_client_month_pnl`: monthly profit per client.** CTEs work out cost and revenue separately. A full join keeps months that only have one of the two, and `LAG` compares each month with the one before.
-
-```sql
-WITH cost AS (
-  SELECT client_id,
-         date_trunc('month', work_date)::date AS month,
-         SUM(labour_cost) AS labour_cost
-  FROM v_entry_cost
-  GROUP BY 1, 2
-),
-revenue AS (
-  SELECT client_id, month, SUM(amount) AS revenue
-  FROM invoices
-  WHERE month <= current_date
-  GROUP BY 1, 2
-),
-pnl AS (
-  SELECT COALESCE(r.client_id, c.client_id) AS client_id,
-         COALESCE(r.month, c.month)         AS month,
-         COALESCE(r.revenue, 0)             AS revenue,
-         COALESCE(c.labour_cost, 0)         AS labour_cost
-  FROM revenue r
-  FULL JOIN cost c
-    ON c.client_id = r.client_id
-   AND c.month = r.month
-)
-SELECT client_id,
-       month,
-       revenue,
-       labour_cost,
-       revenue - labour_cost AS gross_profit,
-       ROUND(100 * (revenue - labour_cost) / NULLIF(revenue, 0), 1) AS margin_pct,
-       (revenue - labour_cost)
-         - LAG(revenue - labour_cost) OVER (PARTITION BY client_id ORDER BY month)
-         AS profit_change_vs_last_month
-FROM pnl;
-```
-
-<details>
-<summary><code>v_service_month_pnl</code></summary>
-
-```sql
--- Paste the output of: SELECT pg_get_viewdef('v_service_month_pnl', true);
-```
-
-</details>
-
-<details>
-<summary><code>v_employee_utilisation</code></summary>
-
-```sql
--- Paste the output of: SELECT pg_get_viewdef('v_employee_utilisation', true);
-```
-
-</details>
-
-<details>
-<summary><code>v_team_performance</code></summary>
-
-```sql
--- Paste the output of: SELECT pg_get_viewdef('v_team_performance', true);
-```
-
-</details>
-
-<details>
-<summary><code>v_budget_burn</code></summary>
-
-```sql
--- Paste the output of: SELECT pg_get_viewdef('v_budget_burn', true);
-```
-
-</details>
 
 ## The stack
 
@@ -202,6 +110,10 @@ Margin, profit per hour and a monthly trend for each service.
 
 [Open the Services page](https://margin-hub-tau.vercel.app/services)
 
+
+<img width="1906" height="1191" alt="Mask group" src="https://github.com/user-attachments/assets/4bcefae4-1c1b-405c-9911-03e2105cd2b8" />
+
+
 ### Period selector
 
 Every page can switch between the last 3, 6 or 12 months, or all time. The choice is saved in the URL, so you can bookmark or share a view.
@@ -212,9 +124,16 @@ Clients are grouped by size. **Tier 1** is large companies, **Tier 2** is medium
 
 [Open the Clients page](https://margin-hub-tau.vercel.app/clients)
 
+
+<img width="1906" height="1191" alt="Group 44" src="https://github.com/user-attachments/assets/eab13974-06b2-4a8d-941b-37230bd75a0e" />
+
+
 ### Revenue by industry
 
 Revenue and profit for each of the nine industries the agency works with. It shows where the agency is strongest and which industries are worth going after.
+
+<img width="1757" height="926" alt="image 8" src="https://github.com/user-attachments/assets/04664965-d0eb-456f-8b3b-38e15c6bb1eb" />
+
 
 ### Client list
 
@@ -230,11 +149,18 @@ Hours used this month against each project’s budget. The bar is green while th
 
 [Open the Services page](https://margin-hub-tau.vercel.app/services)
 
+
+<img width="1906" height="1191" alt="Group 45" src="https://github.com/user-attachments/assets/3a068a24-f2ee-45a6-8b0b-f8666e2a6bf7" />
+
+
 ### Utilisation heatmap
 
 One row per person, one square per week. Yellow means under 40% (not enough work), green goes up to 100%, and red means over capacity.
 
 [Open the Team page](https://margin-hub-tau.vercel.app/team)
+
+<img width="1922" height="1191" alt="Group 46" src="https://github.com/user-attachments/assets/9130ecf0-f525-4986-9a0a-d4c4de485b1c" />
+
 
 ## Interesting findings
 
