@@ -8,6 +8,8 @@ Before publishing:
 Delete this comment when you're done.
 -->
 
+<img width="1906" height="1191" alt="Mask group" src="https://github.com/user-attachments/assets/8d221c52-db8a-4224-9617-e7f0a1408dae" />
+
 # Margin Hub
 
 A dashboard that shows a digital agency which clients, services and people make money, and which ones lose it.
