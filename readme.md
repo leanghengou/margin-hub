@@ -162,69 +162,6 @@ One row per person, one square per week. Yellow means under 40% (not enough work
 
 <img width="1922" height="1191" alt="Group 46" src="https://github.com/user-attachments/assets/9130ecf0-f525-4986-9a0a-d4c4de485b1c" />
 
-
-## Interesting findings
-
-Some things the dashboard shows from the current data. Numbers are for the three months to Nov 18, 2026, unless it says otherwise.
-
-### Ranking by service
-
-| Service | Revenue | Profit | Margin |
-| --- | --- | --- | --- |
-| SEO (with AEO/GEO) | {{}} | {{}} | {{}} |
-| Paid Ads | {{}} | {{}} | {{}} |
-| CRO | {{}} | {{}} | {{}} |
-| Web development | {{}} | {{}} | {{}} |
-
-SEO brings in the most profit and the most work. Paid Ads is the most stable from month to month, while SEO and web development go up and down more.
-
-### Ranking by tier
-
-| Tier | Clients | Revenue | Profit | Margin | Profit per client |
-| --- | --- | --- | --- | --- | --- |
-| Tier 2 (medium) | 19 | $639K | $518K | 81% | $27K |
-| Tier 3 (small) | 7 | $284K | $239K | 84% | $34K |
-| Tier 1 (large) | 10 | $246K | $189K | 77% | $19K |
-
-Tier 2 makes the most profit overall because it has the most clients. Tier 3 has the fewest clients but the best margin and the most profit per client.
-
-### Ranking by industry
-
-| Industry | Clients | Revenue | Profit |
-| --- | --- | --- | --- |
-| E-commerce | 10 | $413K | $334K |
-| Manufacturing | 4 | $138K | $123K |
-| Hospitality | 5 | $131K | $103K |
-| Education | {{}} | {{}} | {{}} |
-| Healthcare | {{}} | {{}} | {{}} |
-| SaaS | {{}} | {{}} | {{}} |
-| Legal | 2 | $70K | $62K |
-| Fitness | 2 | $61K | $50K |
-| Real Estate | 2 | $28K | $24K |
-
-E-commerce is the agency’s largest industry, with 10 clients.
-
-### Ranking by client
-
-All time:
-
-| Client | Tier | Industry | Revenue | Profit | Margin |
-| --- | --- | --- | --- | --- | --- |
-| Koss - Russel | Tier 3 | E-commerce | $510,807 | $445,175 | 87.2% |
-| Prohaska LLC | Tier 2 | Education | $473,938 | $416,874 | 88.0% |
-| Balistreri and Sons | Tier 2 | E-commerce | $469,752 | $404,935 | 86.2% |
-| Stroman - Welch | Tier 1 | SaaS | $32,790 | −$2,380 | −7.3% |
-
-Stroman - Welch joined in June 2026 and is already losing money. Over the last three months, it brought in $16.4K but cost $7.31K more than that, a −44.6% margin.
-
-### Team workload
-
-| Employee | Period | Utilisation |
-| --- | --- | --- |
-| Martha Wehner | Jul–Sep 2026 | Over 100% every week |
-
-Martha Wehner was over capacity for three months in a row, which the heatmap shows as a long red streak.
-
 ## UI and UX
 
 Built for agency owners, managers and freelancers who want one clear source of truth.
