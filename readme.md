@@ -168,7 +168,7 @@ Built for agency owners, managers and freelancers who want one clear source of t
 
 The design is meant to be easy to pick up and direct. A lot of analytics tools, like Semrush, take time to learn: you click through different pages and menus to find each number, and using them becomes a skill of its own. Margin Hub works the other way. There are only four pages, Overview, Team, Services and Clients, and each one puts the important numbers on a single screen. There's nothing to learn, so you can be comfortable with it from day one. Charts and colour do most of the talking, so there's a lot of information without it feeling like too much.
 
-- **Red only means a problem.** Losses, overruns, overloaded people and late invoices are red. Nothing else is.
+- **Red only means a problem.** Losses, unprofit, overloaded people and late invoices are red.
 - **Every number shows its time period.** Each card says whether it covers 3 months, all time or this month, so you always know what you’re looking at.
 - **The period is always visible.** I used buttons instead of a dropdown, so you can see which period is selected.
 - **Each service keeps its colour.** SEO, CRO, Paid Ads and the rest use the same colour on every chart and table.
