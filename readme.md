@@ -74,10 +74,6 @@ To answer those questions, I built ten tables in a star schema. `time_entries` s
 | `invoices` | What each client was billed each month, and whether they’ve paid | Revenue, unpaid invoices |
 | `dim_date` | One row per day, with month, quarter and whether it’s a workday | Monthly totals, capacity |
 
-Two decisions shaped the rest:
-
-- **Costs use rate history.** When someone gets a raise, it goes into `employee_rates` with a start date. Each hour is costed at the rate that person had on that day, so a raise this year doesn’t change last year’s numbers.
-- **Revenue comes from invoices, not hours.** A retainer client pays the same fee no matter how many hours they use. That’s what makes over-servicing show up.
 
 ## The views
 
