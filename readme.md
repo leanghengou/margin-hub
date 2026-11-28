@@ -170,4 +170,3 @@ The design is meant to be easy to pick up and direct. A lot of analytics tools, 
 - **Each service keeps its colour.** SEO, CRO, Paid Ads and the rest use the same colour on every chart and table.
 - **Patterns first, numbers second.** The heatmap and burn bars show trouble before you read a single number.
 - **Key details sit next to the name.** Tier and status tags sit beside each client, so you don’t have to look anything up.
-- **Client details open in a side panel.** Click a client to see their contact, location, industry, tier and status, plus every invoice with its ID, period, service, amount and whether it’s paid. Their email sits right above their unpaid invoices, so chasing a payment takes seconds. It all opens on top of the page, so you never lose your place.
